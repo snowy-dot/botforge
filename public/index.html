@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My First Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+            margin: 0;
+        }
+        h1 { font-size: 3rem; }
+        p { font-size: 1.2rem; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Hello World!</h1>
+    <p>I just made my first website!</p>
+    <p>The time right now is: <span id="time"></span></p>
+    
+    <script>
+        // This little script shows the current time
+        document.getElementById('time').textContent = new Date().toLocaleTimeString();
+    </script>
+</body>
+</html>
