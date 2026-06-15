@@ -56,3 +56,12 @@ app.listen(PORT, () => {
   console.log(`✅ BotForge server running on port ${PORT}`);
   console.log(`🌐 Visit http://localhost:${PORT}`);
 });
+// Health check endpoint - used to monitor if the server is alive
+app.get("/health", (req, res) => {
+  res.json({ 
+    status: "healthy",
+    uptime: process.uptime(), // How long the server has been running (in seconds)
+    timestamp: new Date().toISOString(),
+    message: "Server is running perfectly! 💚"
+  });
+});
