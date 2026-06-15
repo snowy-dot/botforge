@@ -2,9 +2,14 @@
 // It will eventually run Discord bots, but for now it just says "Hello!"
 
 import express from "express";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// NEW: Allow our frontend website to talk to this backend
+// Without this, the browser blocks the request for security reasons
+app.use(cors());
 
 // This lets the server understand JSON data
 app.use(express.json());
@@ -28,18 +33,21 @@ app.get("/api/test", (req, res) => {
 
 // This is where bots will be started (we'll build this next!)
 app.post("/api/bot/start", (req, res) => {
-  console.log("Someone wants to start a bot!");
+  console.log("✅ Someone wants to start a bot!");
+  console.log("📝 Code length:", req.body.code?.length || 0);
+  console.log("🔑 Token received:", req.body.token ? "Yes" : "No");
+  
   res.json({ 
     success: true,
-    message: "Bot start endpoint works! (not implemented yet)"
+    message: "Bot start endpoint reached successfully! 🎉"
   });
 });
 
 app.post("/api/bot/stop", (req, res) => {
-  console.log("Someone wants to stop a bot!");
+  console.log("⏹️ Someone wants to stop a bot!");
   res.json({ 
     success: true,
-    message: "Bot stop endpoint works! (not implemented yet)"
+    message: "Bot stop endpoint works!"
   });
 });
 
