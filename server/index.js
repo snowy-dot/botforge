@@ -1,13 +1,15 @@
 // =====================================================
-// BotForge Backend - SECURE VERSION 5.1
-// Using vm2 for sandboxing (works with Node v24!)
+// BotForge Backend - Version 8.0
+// Discord Bot Hosting + Website Hosting!
 // =====================================================
 
 import express from "express";
 import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
 import { NodeVM } from "vm2";
+import multer from "multer";
 import fs from "fs/promises";
+import fsSync from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -52,7 +54,7 @@ const DANGEROUS_PATTERNS = [
   /require\s*\(\s*['"]dgram['"]\s*\)/i,
   /\bwhile\s*\(\s*true\s*\)/i,
   /\bfor\s*\(\s*;;\s*\)/i,
-  /setInterval\s*\([^,]+,\s*1\s*\)/i  // Fast intervals can DoS
+  /setInterval\s*\([^,]+,\s*1\s*\)/i
 ];
 
 function checkCodeSafety(code) {
@@ -72,7 +74,7 @@ function checkCodeSafety(code) {
 }
 
 // =====================================================
-// SANDBOXED BOT RUNNER (using vm2)
+// SANDBOXED BOT RUNNER
 // =====================================================
 class SandboxedBot {
   constructor(userId, code, token) {
@@ -86,10 +88,6 @@ class SandboxedBot {
 
   async start() {
     try {
-      // Load discord.js library code
-      const discordPath = path.join(__dirname, "node_modules", "discord.js");
-      
-      // Create secure VM
       this.vm = new NodeVM({
         console: 'redirect',
         sandbox: {
@@ -97,16 +95,13 @@ class SandboxedBot {
             env: {
               DISCORD_TOKEN: this.token
             }
-          },
-          // Provide a safe require that only allows discord.js
-          // We'll inject this into the code
+          }
         },
         require: {
-          external: false,  // Don't allow external modules
-          builtin: [],       // Don't allow built-in modules
+          external: false,
+          builtin: [],
           root: path.join(__dirname, "node_modules"),
           mock: {
-            // Mock dangerous modules if someone tries to require them
             fs: {},
             child_process: {},
             http: {},
@@ -119,9 +114,7 @@ class SandboxedBot {
         memoryLimit: SECURITY.MAX_MEMORY_MB
       });
 
-      // Wrap user code to override require
       const wrappedCode = `
-        // Override require to only allow discord.js
         const Module = require('module');
         const originalRequire = Module.prototype.require;
         Module.prototype.require = function(id) {
@@ -134,9 +127,7 @@ class SandboxedBot {
         ${this.code}
       `;
 
-      // Run code in VM
       this.vm.run(wrappedCode, 'bot.js');
-
       this.logs.push('✅ Bot started successfully in sandbox');
       return { success: true };
     } catch (error) {
@@ -148,7 +139,6 @@ class SandboxedBot {
   async stop() {
     if (this.vm) {
       try {
-        // vm2 doesn't have explicit dispose, but GC will handle it
         this.vm = null;
       } catch (err) {
         console.error('Error stopping VM:', err.message);
@@ -166,22 +156,21 @@ class SandboxedBot {
 }
 
 // =====================================================
-// ENDPOINTS
+// BASIC ENDPOINTS
 // =====================================================
 
 app.get("/", (req, res) => {
   res.json({
     message: "🤖 BotForge Backend is running!",
     status: "online",
-    version: "5.1.0 - SECURE with vm2 sandboxing!",
-    security: {
-      sandboxed: true,
-      memoryLimit: SECURITY.MAX_MEMORY_MB + "MB",
-      cpuTimeout: SECURITY.MAX_CPU_TIME_MS + "ms",
-      autoKill: (SECURITY.BOT_TIMEOUT_MS / 1000) + "s"
+    version: "8.0.0 - Bot + Website Hosting!",
+    features: {
+      discordBots: "✅ Active",
+      websiteHosting: "✅ Active",
+      sandboxing: "✅ Enabled",
+      autoKill: "✅ Enabled"
     },
-    activeBots: runningBots.size,
-    maxBots: SECURITY.MAX_BOT_COUNT
+    activeBots: runningBots.size
   });
 });
 
@@ -190,10 +179,13 @@ app.get("/health", (req, res) => {
     status: "healthy",
     uptime: process.uptime(),
     activeBots: runningBots.size,
-    securityEnabled: true,
     timestamp: new Date().toISOString()
   });
 });
+
+// =====================================================
+// DISCORD BOT ENDPOINTS
+// =====================================================
 
 app.post("/api/validate-token", async (req, res) => {
   const { token } = req.body;
@@ -231,7 +223,6 @@ app.post("/api/bot/start", async (req, res) => {
   const { code, token } = req.body;
   const userId = req.ip || "user-" + Date.now();
 
-  // Validation
   if (!code || !token) {
     return res.json({ success: false, message: "❌ Missing code or token!" });
   }
@@ -257,7 +248,6 @@ app.post("/api/bot/start", async (req, res) => {
     });
   }
 
-  // SECURITY CHECK
   const violations = checkCodeSafety(code);
   if (violations.length > 0) {
     return res.json({
@@ -267,7 +257,6 @@ app.post("/api/bot/start", async (req, res) => {
   }
 
   try {
-    // Validate token first
     const tempClient = new Client({ intents: [GatewayIntentBits.Guilds] });
     await tempClient.login(token);
     const botTag = tempClient.user.tag;
@@ -275,7 +264,6 @@ app.post("/api/bot/start", async (req, res) => {
 
     console.log(`🔒 Starting sandboxed bot: ${botTag}`);
 
-    // Create sandboxed bot
     const bot = new SandboxedBot(userId, code, token);
     
     try {
@@ -287,7 +275,6 @@ app.post("/api/bot/start", async (req, res) => {
       });
     }
 
-    // Set auto-kill timeout
     const timeoutId = setTimeout(() => {
       console.log(`⏱️ Auto-killing bot ${botTag} after timeout`);
       bot.stop();
@@ -370,9 +357,122 @@ app.get("/api/bots", (req, res) => {
   });
 });
 
+// =====================================================
+// WEBSITE HOSTING ENDPOINTS
+// =====================================================
+
+// Setup file upload for websites
+const websiteStorage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const userId = req.body.userId || "guest-" + Date.now();
+    const userFolder = path.join(__dirname, "websites", userId);
+    await fs.mkdir(userFolder, { recursive: true });
+    cb(null, userFolder);
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+});
+
+const websiteUpload = multer({ 
+  storage: websiteStorage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB max per file
+});
+
+// Upload website files
+app.post("/api/website/upload", websiteUpload.array("files"), async (req, res) => {
+  try {
+    const userId = req.body.userId || "guest-" + Date.now();
+    const files = req.files;
+    
+    if (!files || files.length === 0) {
+      return res.json({ success: false, message: "❌ No files uploaded!" });
+    }
+
+    console.log(`📁 User ${userId} uploaded ${files.length} file(s)`);
+    
+    res.json({
+      success: true,
+      message: `✅ Uploaded ${files.length} file(s)!`,
+      userId: userId,
+      previewUrl: `/preview/${userId}/`,
+      files: files.map(f => f.originalname)
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.json({ success: false, message: `❌ Error: ${error.message}` });
+  }
+});
+
+// List uploaded files
+app.get("/api/website/files/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userFolder = path.join(__dirname, "websites", userId);
+    
+    if (!fsSync.existsSync(userFolder)) {
+      return res.json({ success: true, files: [] });
+    }
+
+    const files = await fs.readdir(userFolder);
+    res.json({ 
+      success: true,
+      userId: userId,
+      files: files,
+      previewUrl: `/preview/${userId}/`
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// Serve uploaded websites
+app.get("/preview/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userFolder = path.join(__dirname, "websites", userId);
+    const indexFile = path.join(userFolder, "index.html");
+    
+    if (fsSync.existsSync(indexFile)) {
+      res.sendFile(indexFile);
+    } else {
+      res.status(404).send(`
+        <html>
+          <body style="background:#0e0e10;color:white;font-family:sans-serif;text-align:center;padding:50px;">
+            <h1>❌ No Website Found</h1>
+            <p>Upload an index.html file first!</p>
+            <a href="/" style="color:#5865F2;">← Back to BotForge</a>
+          </body>
+        </html>
+      `);
+    }
+  } catch (error) {
+    res.status(500).send("❌ Error: " + error.message);
+  }
+});
+
+app.get("/preview/:userId/:filename", async (req, res) => {
+  try {
+    const { userId, filename } = req.params;
+    const filePath = path.join(__dirname, "websites", userId, filename);
+    
+    if (fsSync.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).send("❌ File not found!");
+    }
+  } catch (error) {
+    res.status(500).send("❌ Error: " + error.message);
+  }
+});
+
+// =====================================================
+// CLEANUP & SHUTDOWN
+// =====================================================
+
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 Shutting down - cleaning up sandboxes...');
+  console.log('🛑 Shutting down - cleaning up...');
   for (const [userId, botData] of runningBots.entries()) {
     clearTimeout(botData.timeoutId);
     await botData.bot.stop();
@@ -380,9 +480,15 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
+// =====================================================
+// START SERVER
+// =====================================================
+
 app.listen(PORT, () => {
-  console.log(`✅ BotForge v5.1 (SECURE) running on port ${PORT}`);
+  console.log(`✅ BotForge v8.0 running on port ${PORT}`);
   console.log(`🛡️ vm2 Sandboxing: ENABLED`);
+  console.log(`🤖 Discord bot hosting: ACTIVE`);
+  console.log(`🌐 Website hosting: ACTIVE`);
   console.log(`🔒 Memory limit: ${SECURITY.MAX_MEMORY_MB}MB per bot`);
   console.log(`⏱️ Auto-kill: ${SECURITY.BOT_TIMEOUT_MS / 1000}s`);
   console.log(`🚫 Dangerous code patterns: BLOCKED`);
