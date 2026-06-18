@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotForge — Free Discord Bot Hosting</title>
+    <title>BotForge — Host Bots & Websites for Free</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -70,41 +70,6 @@
 
         .card p { opacity: 0.7; margin-bottom: 20px; }
 
-        .steps {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .step {
-            flex: 1;
-            min-width: 200px;
-            background: #0a0a0c;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #2f2f35;
-        }
-
-        .step-num {
-            background: #5865F2;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .step strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #5865F2;
-        }
-
         textarea, input[type="password"], input[type="text"] {
             width: 100%;
             background: #0a0a0c;
@@ -129,11 +94,11 @@
             background: #0a0a0c;
             border: 2px dashed #2f2f35;
             border-radius: 8px;
-            padding: 20px;
+            padding: 30px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .file-upload:hover {
@@ -147,7 +112,7 @@
         }
 
         .file-upload input { display: none; }
-        .file-upload-icon { font-size: 2rem; margin-bottom: 10px; }
+        .file-upload-icon { font-size: 3rem; margin-bottom: 10px; }
 
         .btn {
             display: inline-flex;
@@ -172,21 +137,17 @@
 
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-stop {
-            background: #ED4245;
+        .btn-purple {
+            background: #9146FF;
             color: white;
         }
 
-        .btn-stop:hover:not(:disabled) {
-            box-shadow: 0 5px 15px rgba(237, 66, 69, 0.3);
+        .btn-purple:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(145, 70, 255, 0.3);
         }
 
-        .btn-secondary {
-            background: #0a0a0c;
-            color: white;
-            border: 1px solid #2f2f35;
-        }
-
+        .btn-stop { background: #ED4245; color: white; }
+        .btn-secondary { background: #0a0a0c; color: white; border: 1px solid #2f2f35; }
         .btn-small { padding: 8px 15px; font-size: 0.85rem; }
 
         .btn-group {
@@ -208,7 +169,7 @@
 
         .status.online { background: rgba(87, 242, 135, 0.2); color: #57F287; }
         .status.offline { background: rgba(237, 66, 69, 0.2); color: #ED4245; }
-        .status.starting, .status.stopping { background: rgba(254, 231, 92, 0.2); color: #FEE75C; }
+        .status.live { background: rgba(87, 242, 135, 0.2); color: #57F287; }
 
         .status::before {
             content: '';
@@ -220,120 +181,9 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-
-        .countdown {
-            display: none;
-            background: rgba(254, 231, 92, 0.1);
-            border: 2px solid #FEE75C;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 20px 0;
-            text-align: center;
-            animation: countdownPulse 1s infinite;
-        }
-
-        .countdown.active { display: block; }
-
-        @keyframes countdownPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(254, 231, 92, 0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(254, 231, 92, 0); }
-        }
-
-        .countdown-number {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #FEE75C;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 0 20px rgba(254, 231, 92, 0.5);
-        }
-
-        .countdown-label { font-size: 1.1rem; opacity: 0.9; }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #2f2f35;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #5865F2, #57F287);
-            width: 0%;
-            transition: width 0.3s;
-            border-radius: 4px;
-        }
-
-        .bot-info {
-            background: #0a0a0c;
-            border: 1px solid #2f2f35;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .bot-info.active { display: block; animation: slideUp 0.5s; }
-
-        .bot-info-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #2f2f35;
-        }
-
-        .bot-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #5865F2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-        }
-
-        .bot-name-large { font-size: 1.3rem; font-weight: bold; color: #57F287; }
-        .bot-tag-small { font-size: 0.85rem; opacity: 0.7; }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .stat-card {
-            background: #1f1f23;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #2f2f35;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            opacity: 0.7;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #57F287;
-            margin-top: 5px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .logs-container { position: relative; }
 
         .logs {
             background: #0a0a0c;
@@ -345,19 +195,11 @@
             overflow-y: auto;
             white-space: pre-wrap;
             color: #57F287;
-            word-wrap: break-word;
         }
 
         .logs:empty::before {
-            content: 'No logs yet... Start your bot to see logs here!';
+            content: 'No logs yet...';
             color: #666;
-            font-style: italic;
-        }
-
-        .logs-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
         }
 
         .tip {
@@ -371,28 +213,6 @@
 
         .tip strong { color: #5865F2; }
 
-        .warning {
-            background: rgba(254, 231, 92, 0.1);
-            border-left: 4px solid #FEE75C;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .warning strong { color: #FEE75C; }
-
-        .security-tip {
-            background: rgba(237, 66, 69, 0.1);
-            border-left: 4px solid #ED4245;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .security-tip strong { color: #ED4245; }
-
         .success-msg {
             background: rgba(87, 242, 135, 0.1);
             border-left: 4px solid #57F287;
@@ -403,6 +223,22 @@
         }
 
         .success-msg strong { color: #57F287; }
+
+        .preview-link {
+            background: #0a0a0c;
+            border: 2px solid #57F287;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .preview-link a {
+            color: #57F287;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
         .badge {
             display: inline-block;
@@ -416,135 +252,35 @@
         }
 
         .badge.free { background: #57F287; color: black; }
-        .badge.secure { background: #ED4245; }
-        .badge.always { background: #FEE75C; color: black; }
-
-        details {
-            background: #0a0a0c;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            border: 1px solid #2f2f35;
-            cursor: pointer;
-            transition: border 0.2s;
-        }
-
-        details:hover { border-color: #5865F2; }
-
-        details summary {
-            font-weight: bold;
-            color: #5865F2;
-            user-select: none;
-            list-style: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        details summary::before {
-            content: '▶';
-            transition: transform 0.2s;
-            font-size: 0.8rem;
-        }
-
-        details[open] summary::before { transform: rotate(90deg); }
-        details[open] summary { margin-bottom: 10px; }
-
-        details p, details ul, details ol {
-            opacity: 0.8;
-            line-height: 1.6;
-            margin-top: 10px;
-            margin-left: 20px;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 30px 20px;
-            opacity: 0.6;
-            margin-top: 40px;
-            border-top: 1px solid #2f2f35;
-        }
-
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0c; }
-        ::-webkit-scrollbar-thumb { background: #5865F2; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4752c4; }
-
-        code {
-            background: #0a0a0c;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            color: #5865F2;
-        }
-
-        ul, ol { margin-left: 20px; line-height: 1.8; }
+        .badge.new { background: #9146FF; color: white; }
     </style>
 </head>
 <body>
-    <!-- HEADER (Clean - No Login!) -->
     <div class="header">
         <div class="logo">
             <span class="logo-icon">🤖</span>
-            <span>BotForge <span class="badge always">24/7 ONLINE</span></span>
+            <span>BotForge <span class="badge free">FREE</span></span>
         </div>
     </div>
 
     <div class="container">
-        <!-- WELCOME -->
+        <!-- Welcome -->
         <div class="card">
             <h2>👋 Welcome to BotForge!</h2>
-            <p>Keep your Discord bot online 24/7 — no PC required, no credit card, completely free.</p>
+            <p>Host Discord bots AND websites for free. No credit card. Runs 24/7.</p>
             <div class="success-msg">
-                <strong>🎉 100% Free Forever!</strong> Your bot stays online 24/7 in the cloud. No account needed, no sign-up!
-            </div>
-            <div class="tip">
-                <strong>💡 Quick Start:</strong> Paste your bot code, add your token, click Start. Your bot will be online in 5-10 seconds!
+                <strong>🎉 NEW: Website Hosting!</strong> You can now host static websites too! Upload HTML files and get a live preview URL.
             </div>
         </div>
 
-        <!-- HOW TO -->
+        <!-- Discord Bot Hosting -->
         <div class="card">
-            <h2>📝 How to keep your bot online 24/7</h2>
-            <p>Just 3 simple steps. Works forever, even when your PC is off!</p>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-num">1</div>
-                    <strong>Get your bot token</strong>
-                    <p class="help">Discord Developer Portal → App → Bot → Copy Token</p>
-                </div>
-                <div class="step">
-                    <div class="step-num">2</div>
-                    <strong>Paste your code</strong>
-                    <p class="help">Or drag & drop a file!</p>
-                </div>
-                <div class="step">
-                    <div class="step-num">3</div>
-                    <strong>Click Start</strong>
-                    <p class="help">Bot stays online 24/7 in the cloud!</p>
-                </div>
-            </div>
-            <div class="warning">
-                <strong>⚠️ Important:</strong> Make sure your bot is invited to a server first!
-                <br>Developer Portal → OAuth2 → URL Generator → Check "bot" → Use the URL.
-            </div>
-        </div>
-
-        <!-- CODE EDITOR -->
-        <div class="card">
-            <h2>💻 Your Bot Code</h2>
-            <p>Paste your Discord bot code or upload a file.</p>
+            <h2>🤖 Discord Bot Hosting</h2>
+            <p>Keep your Discord bot online 24/7 in the cloud.</p>
             
-            <div class="file-upload" id="fileUpload">
-                <div class="file-upload-icon">📁</div>
-                <strong>Click to upload</strong> or drag & drop
-                <p style="margin-top: 5px; font-size: 0.85rem; opacity: 0.6;">.js, .ts, .mjs files (max 100KB)</p>
-                <input type="file" id="fileInput" accept=".js,.ts,.mjs,.txt">
-            </div>
-
-            <textarea id="botCode" placeholder="Paste your bot code here or upload a file above...">// Welcome to BotForge! 🎉
-// Your bot will stay online 24/7 here - even when your PC is off!
+            <h3 style="color:#5865F2; margin: 15px 0 10px;">💻 Bot Code</h3>
+            <textarea id="botCode" placeholder="Paste your Discord bot code...">// Welcome to BotForge!
+// Your bot will stay online 24/7 here!
 
 const { Client, GatewayIntentBits } = require('discord.js');
 
@@ -558,162 +294,99 @@ const client = new Client({
 
 client.on('messageCreate', (message) => {
   if (message.author.bot) return;
-  
   if (message.content === '!ping') {
-    message.reply('🏓 Pong! Bot hosted 24/7 on BotForge!');
-  }
-  
-  if (message.content === '!info') {
-    message.reply('🤖 I\'m online 24/7 thanks to BotForge - free Discord bot hosting!');
+    message.reply('🏓 Pong!');
   }
 });
 
 client.on('ready', () => {
-  console.log('✅ Bot is online 24/7 as ' + client.user.tag);
-  console.log('📡 Serving ' + client.guilds.cache.size + ' servers');
-  console.log('💚 Will stay online forever - even when your PC is off!');
-  client.user.setActivity('24/7 on BotForge', { type: 3 });
+  console.log('✅ Bot is online as ' + client.user.tag);
 });
 
 client.login(process.env.DISCORD_TOKEN);</textarea>
 
-            <div class="btn-group" style="margin-top: 10px;">
-                <button class="btn btn-secondary btn-small" onclick="loadTemplate()">📋 Load Template</button>
-                <button class="btn btn-secondary btn-small" onclick="clearCode()">🗑️ Clear</button>
+            <h3 style="color:#5865F2; margin: 20px 0 10px;">🔑 Bot Token</h3>
+            <input type="password" id="botToken" placeholder="Paste your Discord bot token">
+
+            <div class="tip">
+                <strong>💡 Tip:</strong> Use process.env.DISCORD_TOKEN in your code. Enable "Message Content Intent" in Discord Developer Portal.
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" id="startBotBtn" onclick="startBot()">▶️ Start Bot</button>
+                <button class="btn btn-stop" id="stopBotBtn" onclick="stopBot()" disabled>⏹️ Stop Bot</button>
+            </div>
+
+            <div style="margin-top: 15px;">
+                Status: <span id="botStatus" class="status offline">Offline</span>
+            </div>
+        </div>
+
+        <!-- Website Hosting (NEW!) -->
+        <div class="card">
+            <h2>🌐 Website Hosting <span class="badge new">NEW</span></h2>
+            <p>Upload HTML/CSS/JS files and get a live preview URL instantly!</p>
+
+            <div class="file-upload" id="fileUpload">
+                <div class="file-upload-icon">📁</div>
+                <strong>Click to upload</strong> or drag & drop
+                <p style="margin-top: 5px; font-size: 0.85rem; opacity: 0.6;">
+                    HTML, CSS, JS files (max 5MB each)
+                </p>
+                <input type="file" id="fileInput" accept=".html,.css,.js,.png,.jpg,.svg,.txt" multiple>
+            </div>
+
+            <div id="fileList" style="margin: 10px 0;"></div>
+
+            <div class="btn-group">
+                <button class="btn btn-purple" onclick="uploadWebsite()">🚀 Deploy Website</button>
+            </div>
+
+            <div id="previewSection" style="display:none;">
+                <div class="success-msg">
+                    <strong>✅ Website Deployed!</strong> Your site is live!
+                </div>
+                <div class="preview-link">
+                    <strong>Preview URL:</strong><br>
+                    <a id="previewLink" href="" target="_blank"></a>
+                </div>
             </div>
 
             <div class="tip">
-                <strong>💡 Code Tips:</strong>
-                <ul>
-                    <li>Use <code>process.env.DISCORD_TOKEN</code> (never hardcode your token!)</li>
-                    <li>Enable "Message Content Intent" in Discord Developer Portal</li>
-                    <li>Your code is auto-saved to your browser</li>
+                <strong>💡 How it works:</strong>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>Upload your <code>index.html</code> file (and any CSS/JS/images)</li>
+                    <li>Click "Deploy Website"</li>
+                    <li>Get a preview URL instantly!</li>
+                    <li>Share the URL with anyone!</li>
                 </ul>
             </div>
         </div>
 
-        <!-- TOKEN -->
-        <div class="card">
-            <h2>🔑 Bot Token <span class="badge secure">ENCRYPTED</span></h2>
-            <p>Paste your bot token below. Auto-deleted after 1 hour for security.</p>
-            <input type="password" id="botToken" placeholder="Paste your bot token here...">
-            
-            <div class="btn-group" style="margin-top: 10px;">
-                <button class="btn btn-secondary btn-small" onclick="toggleTokenVisibility()">👁️ Show/Hide</button>
-                <button class="btn btn-secondary btn-small" onclick="pasteToken()">📋 Paste</button>
-                <button class="btn btn-secondary btn-small" onclick="clearToken()">🗑️ Clear</button>
-            </div>
-
-            <div class="security-tip">
-                <strong>🛡️ Security:</strong>
-                <ul>
-                    <li>Never share your token - it controls your bot!</li>
-                    <li>Token is deleted after 1 hour automatically</li>
-                    <li>Reset your token in Discord if you think it's compromised</li>
-                    <li>We never log or store tokens permanently</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- CONTROL PANEL -->
-        <div class="card">
-            <h2>🎮 Control Panel</h2>
-            <p>Start or stop your bot. Once started, it runs 24/7!</p>
-            
-            <div style="margin: 15px 0;">
-                Status: <span id="status" class="status offline">Offline</span>
-            </div>
-
-            <div class="countdown" id="countdown">
-                <div class="countdown-label" id="countdownLabel">⏱️ Starting your bot...</div>
-                <div class="countdown-number" id="countdownNumber">10</div>
-                <div class="countdown-label">seconds remaining</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-
-            <div class="bot-info" id="botInfo">
-                <div class="bot-info-header">
-                    <div class="bot-avatar" id="botAvatar">🤖</div>
-                    <div>
-                        <div class="bot-name-large" id="botName">-</div>
-                        <div class="bot-tag-small" id="botTag">-</div>
-                    </div>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Uptime</div>
-                        <div class="stat-value" id="uptime">0s</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Logs</div>
-                        <div class="stat-value" id="logCount">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Status</div>
-                        <div class="stat-value" style="font-size: 1rem;">🟢 Online 24/7</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="btn-group">
-                <button class="btn" id="startBtn" onclick="startBot()">▶️ Start Bot</button>
-                <button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>⏹️ Stop Bot</button>
-                <button class="btn btn-secondary" id="restartBtn" onclick="restartBot()" disabled>🔄 Restart</button>
-            </div>
-        </div>
-
-        <!-- LOGS -->
+        <!-- Live Logs -->
         <div class="card">
             <h2>📊 Live Logs</h2>
-            <p>See what your bot is doing in real-time.</p>
-            <div class="logs-container">
-                <div class="logs" id="logs"></div>
-                <div class="logs-actions">
-                    <button class="btn btn-secondary btn-small" onclick="copyLogs()">📋 Copy</button>
-                    <button class="btn btn-secondary btn-small" onclick="downloadLogs()">💾 Download</button>
-                    <button class="btn btn-secondary btn-small" onclick="clearLogs()">🗑️ Clear</button>
-                </div>
+            <p>See what's happening with your bots and websites.</p>
+            <div class="logs" id="logs"></div>
+        </div>
+
+        <!-- Quick Test -->
+        <div class="card">
+            <h2>🧪 Quick Test Website</h2>
+            <p>Want to test? Create a simple HTML file and upload it!</p>
+            <div class="tip">
+                <strong>Create a file called <code>test.html</code> with this:</strong>
+                <pre style="background:#000; padding:15px; border-radius:8px; margin-top:10px; overflow-x:auto;"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;My First Website!&lt;/title&gt;&lt;/head&gt;
+&lt;body style="background:#5865F2;color:white;text-align:center;padding:50px;font-family:sans-serif;"&gt;
+  &lt;h1&gt;🎉 Hello from BotForge!&lt;/h1&gt;
+  &lt;p&gt;My website is hosted for FREE!&lt;/p&gt;
+  &lt;p&gt;Powered by: BotForge&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
             </div>
         </div>
-
-        <!-- FAQ -->
-        <div class="card">
-            <h2>❓ Frequently Asked Questions</h2>
-            <details>
-                <summary>🤔 My bot won't come online, what do I do?</summary>
-                <p>Try these fixes in order:</p>
-                <ol>
-                    <li>Check your token (no extra spaces!)</li>
-                    <li>Enable "Message Content Intent" in Discord Developer Portal</li>
-                    <li>Make sure code uses <code>process.env.DISCORD_TOKEN</code></li>
-                    <li>Check logs for error messages</li>
-                    <li>Verify bot is invited to a server</li>
-                </ol>
-            </details>
-            <details>
-                <summary>💸 Is this really free?</summary>
-                <p>Yes! 100% free forever. No credit card, no premium plans, no hidden costs. We use free hosting tiers to keep it free for everyone.</p>
-            </details>
-            <details>
-                <summary>🔒 Is my token safe?</summary>
-                <p>Absolutely! Your token is encrypted, never shared, and auto-deleted after 1 hour.</p>
-            </details>
-            <details>
-                <summary>⏱️ Does my bot really stay online 24/7?</summary>
-                <p>Yes! Once started, your bot runs in the cloud 24/7. Even when you close your browser, turn off your PC, or go to sleep. The bot stays online!</p>
-            </details>
-            <details>
-                <summary>🚀 How do I make my bot better?</summary>
-                <p>Join the Discord.js community: <a href="https://discord.gg/djs" target="_blank">discord.gg/djs</a> for tutorials and help!</p>
-            </details>
-        </div>
-    </div>
-
-    <div class="footer">
-        <p>Made with 💜 for the Discord community | BotForge © 2025</p>
-        <p style="margin-top: 10px;">Free • 24/7 • No PC Required</p>
     </div>
 
     <script>
@@ -721,35 +394,24 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         // CONFIGURATION
         // =====================================================
         const BACKEND_URL = 'https://botforge-4k7j.onrender.com';
+        let uploadedFiles = [];
 
         // =====================================================
-        // STATE
+        // HELPER FUNCTIONS
         // =====================================================
-        let botStartTime = null;
-        let uptimeInterval = null;
-        let countdownInterval = null;
-        let logCount = 0;
-
-        // =====================================================
-        // AUTO-SAVE TO LOCALSTORAGE
-        // =====================================================
-        function autoSave() {
-            localStorage.setItem('botCode', document.getElementById('botCode').value);
+        function addLog(message) {
+            const logs = document.getElementById('logs');
+            const time = new Date().toLocaleTimeString();
+            logs.textContent += `[${time}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
         }
 
-        function autoLoad() {
-            const saved = localStorage.getItem('botCode');
-            if (saved) document.getElementById('botCode').value = saved;
-        }
-
-        document.getElementById('botCode')?.addEventListener('input', autoSave);
-        autoLoad();
-
         // =====================================================
-        // FILE UPLOAD
+        // FILE UPLOAD HANDLING
         // =====================================================
         const fileUpload = document.getElementById('fileUpload');
         const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
 
         fileUpload.addEventListener('click', () => fileInput.click());
 
@@ -765,208 +427,83 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         fileUpload.addEventListener('drop', (e) => {
             e.preventDefault();
             fileUpload.classList.remove('dragover');
-            handleFile(e.dataTransfer.files[0]);
+            handleFiles(e.dataTransfer.files);
         });
 
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
 
-        function handleFile(file) {
-            if (!file) return;
-            if (file.size > 100000) {
-                addLog('❌ File too large! Max 100KB.');
+        function handleFiles(files) {
+            uploadedFiles = Array.from(files);
+            
+            if (uploadedFiles.length === 0) {
+                fileList.innerHTML = '';
                 return;
             }
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('botCode').value = e.target.result;
-                addLog(`✅ Loaded file: ${file.name}`);
-                autoSave();
-            };
-            reader.readAsText(file);
-        }
 
-        // =====================================================
-        // HELPER FUNCTIONS
-        // =====================================================
-        function addLog(message) {
-            const logs = document.getElementById('logs');
-            const time = new Date().toLocaleTimeString();
-            logs.textContent += `[${time}] ${message}\n`;
-            logs.scrollTop = logs.scrollHeight;
-            logCount++;
-            document.getElementById('logCount').textContent = logCount;
-        }
-
-        function setStatus(state) {
-            const status = document.getElementById('status');
-            const startBtn = document.getElementById('startBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const restartBtn = document.getElementById('restartBtn');
-            
-            status.className = 'status ' + state;
-            status.textContent = state.charAt(0).toUpperCase() + state.slice(1);
-            
-            if (state === 'online') {
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                restartBtn.disabled = false;
-            } else if (state === 'starting' || state === 'stopping') {
-                startBtn.disabled = true;
-                stopBtn.disabled = true;
-                restartBtn.disabled = true;
-            } else {
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-                restartBtn.disabled = true;
-            }
-        }
-
-        function showCountdown(seconds, label) {
-            const countdown = document.getElementById('countdown');
-            const numberEl = document.getElementById('countdownNumber');
-            const labelEl = document.getElementById('countdownLabel');
-            const progress = document.getElementById('progressFill');
-            
-            labelEl.textContent = label;
-            countdown.classList.add('active');
-            let remaining = seconds;
-            
-            if (countdownInterval) clearInterval(countdownInterval);
-            
-            countdownInterval = setInterval(() => {
-                numberEl.textContent = remaining;
-                const percent = ((seconds - remaining) / seconds) * 100;
-                progress.style.width = percent + '%';
-                
-                if (remaining <= 0) clearInterval(countdownInterval);
-                remaining--;
-            }, 1000);
-        }
-
-        function hideCountdown() {
-            document.getElementById('countdown').classList.remove('active');
-            if (countdownInterval) clearInterval(countdownInterval);
-        }
-
-        function showBotInfo(botTag) {
-            const botInfo = document.getElementById('botInfo');
-            const [name, tag] = botTag.split('#');
-            document.getElementById('botName').textContent = name;
-            document.getElementById('botTag').textContent = '#' + tag;
-            document.getElementById('botAvatar').textContent = name.charAt(0).toUpperCase();
-            botInfo.classList.add('active');
-            botStartTime = Date.now();
-            
-            if (uptimeInterval) clearInterval(uptimeInterval);
-            uptimeInterval = setInterval(() => {
-                const seconds = Math.floor((Date.now() - botStartTime) / 1000);
-                let uptime = '';
-                if (seconds < 60) uptime = seconds + 's';
-                else if (seconds < 3600) uptime = Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
-                else uptime = Math.floor(seconds / 3600) + 'h ' + Math.floor((seconds % 3600) / 60) + 'm';
-                document.getElementById('uptime').textContent = uptime;
-            }, 1000);
-        }
-
-        function hideBotInfo() {
-            document.getElementById('botInfo').classList.remove('active');
-            if (uptimeInterval) {
-                clearInterval(uptimeInterval);
-                uptimeInterval = null;
-            }
-        }
-
-        // =====================================================
-        // TOKEN UTILITIES
-        // =====================================================
-        function toggleTokenVisibility() {
-            const input = document.getElementById('botToken');
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-
-        async function pasteToken() {
-            try {
-                const text = await navigator.clipboard.readText();
-                document.getElementById('botToken').value = text;
-                addLog('📋 Token pasted from clipboard');
-            } catch {
-                addLog('❌ Could not access clipboard');
-            }
-        }
-
-        function clearToken() {
-            document.getElementById('botToken').value = '';
-            addLog('🗑️ Token cleared');
-        }
-
-        // =====================================================
-        // CODE UTILITIES
-        // =====================================================
-        function loadTemplate() {
-            const template = `// BotForge Starter Bot - 24/7 Online!
-const { Client, GatewayIntentBits } = require('discord.js');
-
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
-});
-
-client.on('messageCreate', (message) => {
-  if (message.author.bot) return;
-  if (message.content === '!ping') message.reply('Pong! 🏓');
-});
-
-client.on('ready', () => {
-  console.log('Bot online 24/7 as ' + client.user.tag);
-});
-
-client.login(process.env.DISCORD_TOKEN);`;
-            document.getElementById('botCode').value = template;
-            autoSave();
-            addLog('📋 Template loaded');
-        }
-
-        function clearCode() {
-            if (confirm('Clear all code?')) {
-                document.getElementById('botCode').value = '';
-                autoSave();
-                addLog('🗑️ Code cleared');
-            }
-        }
-
-        // =====================================================
-        // LOG UTILITIES
-        // =====================================================
-        function copyLogs() {
-            const logs = document.getElementById('logs').textContent;
-            navigator.clipboard.writeText(logs).then(() => {
-                addLog('📋 Logs copied to clipboard');
+            let html = '<strong>📄 Selected Files:</strong><ul style="margin-left: 20px; margin-top: 5px;">';
+            uploadedFiles.forEach(file => {
+                const size = (file.size / 1024).toFixed(1);
+                html += `<li>${file.name} <span style="opacity:0.6;">(${size} KB)</span></li>`;
             });
-        }
+            html += '</ul>';
+            fileList.innerHTML = html;
 
-        function downloadLogs() {
-            const logs = document.getElementById('logs').textContent;
-            const blob = new Blob([logs], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `botforge-logs-${Date.now()}.txt`;
-            a.click();
-            addLog('💾 Logs downloaded');
-        }
-
-        function clearLogs() {
-            document.getElementById('logs').textContent = '';
-            logCount = 0;
-            document.getElementById('logCount').textContent = '0';
-            addLog('🗑️ Logs cleared');
+            addLog(`📁 Selected ${uploadedFiles.length} file(s) for upload`);
         }
 
         // =====================================================
-        // BOT CONTROL
+        // DEPLOY WEBSITE
+        // =====================================================
+        async function uploadWebsite() {
+            if (uploadedFiles.length === 0) {
+                addLog('❌ Please select files first!');
+                return;
+            }
+
+            addLog('🚀 Deploying website...');
+
+            const formData = new FormData();
+            formData.append('userId', 'guest-' + Date.now());
+            
+            uploadedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/website/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addLog(data.message);
+                    addLog(`📁 Files: ${data.files.join(', ')}`);
+                    
+                    // Show preview link
+                    const previewSection = document.getElementById('previewSection');
+                    const previewLink = document.getElementById('previewLink');
+                    const fullUrl = BACKEND_URL + data.previewUrl;
+                    
+                    previewLink.href = fullUrl;
+                    previewLink.textContent = fullUrl;
+                    previewSection.style.display = 'block';
+                    
+                    addLog(`🌐 Preview URL: ${fullUrl}`);
+                } else {
+                    addLog(data.message || '❌ Upload failed!');
+                }
+            } catch (err) {
+                addLog('❌ Error: ' + err.message);
+                addLog('💡 Make sure backend is deployed and accessible');
+            }
+        }
+
+        // =====================================================
+        // DISCORD BOT CONTROLS
         // =====================================================
         async function startBot() {
             const code = document.getElementById('botCode').value.trim();
@@ -975,14 +512,9 @@ client.login(process.env.DISCORD_TOKEN);`;
             if (!token) { addLog('❌ Please enter your bot token!'); return; }
             if (!code) { addLog('❌ Please paste your bot code!'); return; }
 
-            if (!code.includes('process.env.DISCORD_TOKEN')) {
-                addLog('⚠️ Warning: Use process.env.DISCORD_TOKEN for the token!');
-            }
-
-            setStatus('starting');
-            addLog('🚀 Starting your bot...');
-            addLog('🔍 Validating token...');
-            showCountdown(10, '⏱️ Starting your bot...');
+            addLog('🚀 Starting Discord bot...');
+            document.getElementById('botStatus').className = 'status offline';
+            document.getElementById('botStatus').textContent = 'Starting...';
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/bot/start`, {
@@ -991,77 +523,43 @@ client.login(process.env.DISCORD_TOKEN);`;
                     body: JSON.stringify({ code, token })
                 });
                 
-                if (!response.ok) {
-                    addLog(`❌ Server error: ${response.status}`);
-                    addLog('💡 Backend might be waking up. Wait 30s and try again.');
-                    setStatus('offline');
-                    hideCountdown();
-                    return;
-                }
-                
                 const data = await response.json();
-                hideCountdown();
                 
                 if (data.success) {
-                    setStatus('online');
-                    showBotInfo(data.botTag);
                     addLog(data.message);
-                    addLog('💚 Your bot is now online 24/7!');
-                    addLog('💡 You can close this page - the bot stays online!');
+                    document.getElementById('botStatus').className = 'status live';
+                    document.getElementById('botStatus').textContent = 'Online';
+                    document.getElementById('startBotBtn').disabled = true;
+                    document.getElementById('stopBotBtn').disabled = false;
                 } else {
-                    setStatus('offline');
-                    addLog(data.message || '❌ Unknown error');
-                    if (data.message && data.message.includes('invalid')) {
-                        addLog('💡 Double-check your token in Discord Developer Portal');
-                    }
+                    addLog(data.message || '❌ Failed to start bot');
+                    document.getElementById('botStatus').className = 'status offline';
+                    document.getElementById('botStatus').textContent = 'Offline';
                 }
             } catch (err) {
-                hideCountdown();
-                setStatus('offline');
-                if (err.message.includes('Failed to fetch')) {
-                    addLog('❌ Cannot reach backend');
-                    addLog('💡 Backend might be starting up. Wait 30s and try again.');
-                } else {
-                    addLog('❌ Error: ' + err.message);
-                }
+                addLog('❌ Error: ' + err.message);
             }
         }
 
         async function stopBot() {
-            addLog('⏹️ Stopping your bot...');
-            showCountdown(5, '⏹️ Stopping your bot...');
-            setStatus('stopping');
-            
+            addLog('⏹️ Stopping bot...');
             try {
-                const response = await fetch(`${BACKEND_URL}/api/bot/stop`, {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                addLog(data.message || '✅ Bot stopped');
-            } catch (err) {
-                addLog('❌ Connection error: ' + err.message);
-            }
-            
-            setTimeout(() => {
-                hideCountdown();
-                setStatus('offline');
-                hideBotInfo();
+                await fetch(`${BACKEND_URL}/api/bot/stop`, { method: 'POST' });
                 addLog('✅ Bot stopped');
-            }, 5000);
+            } catch (err) {
+                addLog('❌ Error: ' + err.message);
+            }
+            document.getElementById('botStatus').className = 'status offline';
+            document.getElementById('botStatus').textContent = 'Offline';
+            document.getElementById('startBotBtn').disabled = false;
+            document.getElementById('stopBotBtn').disabled = true;
         }
 
-        async function restartBot() {
-            addLog('🔄 Restarting bot...');
-            await stopBot();
-            setTimeout(() => startBot(), 6000);
-        }
-
-        // =====================================================
-        // WELCOME MESSAGE
-        // =====================================================
+        // Welcome
         addLog('👋 Welcome to BotForge!');
-        addLog('💡 Paste your code and token, then click Start');
-        addLog('💚 Your bot will stay online 24/7!');
+        addLog('🤖 Discord bot hosting: ACTIVE');
+        addLog('🌐 Website hosting: ACTIVE');
+        addLog('💡 Upload HTML files to deploy your website!');
     </script>
 </body>
 </html>
