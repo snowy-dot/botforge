@@ -11,54 +11,123 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0e0e10;
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
+        :root {
+            --bg-primary: #0e0e10;
+            --bg-secondary: #1f1f23;
+            --bg-tertiary: #0a0a0c;
+            --border: #2f2f35;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --accent: #5865F2;
+            --success: #57F287;
+            --error: #ED4245;
+            --warning: #FEE75C;
+            --info: #3498DB;
         }
 
+        body.light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f3f5;
+            --bg-tertiary: #e8e8eb;
+            --border: #d0d0d5;
+            --text-primary: #060607;
+            --text-secondary: rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* HEADER */
         .header {
             max-width: 900px;
             margin: 0 auto 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #5865F2;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .login-btn {
-            background: #5865F2;
+        .logo-icon {
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .theme-toggle, .login-btn {
+            background: var(--accent);
             color: white;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
         }
 
+        .theme-toggle:hover, .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+        }
+
+        /* CONTAINER */
         .container {
             max-width: 900px;
             margin: 0 auto;
         }
 
         .card {
-            background: #1f1f23;
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 30px;
             margin-bottom: 20px;
-            border: 1px solid #2f2f35;
+            border: 1px solid var(--border);
             position: relative;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card h2 {
             margin-bottom: 10px;
-            color: #5865F2;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .card p {
@@ -66,6 +135,7 @@
             margin-bottom: 20px;
         }
 
+        /* STEPS */
         .steps {
             display: flex;
             gap: 20px;
@@ -76,14 +146,14 @@
         .step {
             flex: 1;
             min-width: 200px;
-            background: #0e0e10;
+            background: var(--bg-tertiary);
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #2f2f35;
+            border: 1px solid var(--border);
         }
 
         .step-num {
-            background: #5865F2;
+            background: var(--accent);
             color: white;
             width: 30px;
             height: 30px;
@@ -98,36 +168,70 @@
         .step strong {
             display: block;
             margin-bottom: 5px;
-            color: #5865F2;
+            color: var(--accent);
         }
 
-        textarea {
+        /* INPUTS */
+        textarea, input[type="password"], input[type="text"] {
             width: 100%;
-            background: #0e0e10;
-            color: white;
-            border: 1px solid #2f2f35;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             padding: 15px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
-            min-height: 250px;
             font-size: 0.9rem;
+            transition: border 0.2s;
+        }
+
+        textarea {
+            min-height: 250px;
             resize: vertical;
         }
 
-        input[type="password"], input[type="text"] {
-            width: 100%;
-            background: #0e0e10;
-            color: white;
-            border: 1px solid #2f2f35;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 1rem;
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
         }
 
+        /* FILE UPLOAD */
+        .file-upload {
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .file-upload:hover {
+            border-color: var(--accent);
+            background: rgba(88, 101, 242, 0.05);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--success);
+            background: rgba(87, 242, 135, 0.1);
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-upload-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* BUTTONS */
         .btn {
-            display: inline-block;
-            background: #57F287;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success);
             color: black;
             padding: 15px 30px;
             border-radius: 8px;
@@ -150,12 +254,23 @@
         }
 
         .btn-stop {
-            background: #ED4245;
+            background: var(--error);
             color: white;
         }
 
         .btn-stop:hover:not(:disabled) {
             box-shadow: 0 5px 15px rgba(237, 66, 69, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.85rem;
         }
 
         .btn-group {
@@ -165,6 +280,7 @@
             flex-wrap: wrap;
         }
 
+        /* STATUS */
         .status {
             display: inline-flex;
             align-items: center;
@@ -177,17 +293,17 @@
 
         .status.online {
             background: rgba(87, 242, 135, 0.2);
-            color: #57F287;
+            color: var(--success);
         }
 
         .status.offline {
             background: rgba(237, 66, 69, 0.2);
-            color: #ED4245;
+            color: var(--error);
         }
 
-        .status.starting {
+        .status.starting, .status.stopping {
             background: rgba(254, 231, 92, 0.2);
-            color: #FEE75C;
+            color: var(--warning);
         }
 
         .status::before {
@@ -200,99 +316,38 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
         }
 
-        .logs {
-            background: #0a0a0c;
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            max-height: 300px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            color: #57F287;
-        }
-
-        .logs:empty::before {
-            content: 'No logs yet...';
-            color: #666;
-        }
-
-        .help {
-            font-size: 0.85rem;
-            opacity: 0.6;
-            margin-top: 10px;
-        }
-
-        .help a {
-            color: #5865F2;
-        }
-
-        /* New: Tip boxes */
-        .tip {
-            background: rgba(88, 101, 242, 0.1);
-            border-left: 4px solid #5865F2;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .tip strong {
-            color: #5865F2;
-        }
-
-        /* New: Warning boxes */
-        .warning {
-            background: rgba(254, 231, 92, 0.1);
-            border-left: 4px solid #FEE75C;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .warning strong {
-            color: #FEE75C;
-        }
-
-        /* New: Security tips */
-        .security-tip {
-            background: rgba(237, 66, 69, 0.1);
-            border-left: 4px solid #ED4245;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .security-tip strong {
-            color: #ED4245;
-        }
-
-        /* New: Countdown timer */
+        /* COUNTDOWN */
         .countdown {
             display: none;
             background: rgba(254, 231, 92, 0.1);
-            border: 2px solid #FEE75C;
+            border: 2px solid var(--warning);
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             margin: 20px 0;
             text-align: center;
+            animation: countdownPulse 1s infinite;
         }
 
         .countdown.active {
             display: block;
         }
 
+        @keyframes countdownPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(254, 231, 92, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(254, 231, 92, 0); }
+        }
+
         .countdown-number {
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: bold;
-            color: #FEE75C;
+            color: var(--warning);
             margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(254, 231, 92, 0.5);
         }
 
         .countdown-label {
@@ -303,7 +358,7 @@
         .progress-bar {
             width: 100%;
             height: 8px;
-            background: #2f2f35;
+            background: var(--border);
             border-radius: 4px;
             overflow: hidden;
             margin-top: 15px;
@@ -311,16 +366,166 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #5865F2, #57F287);
+            background: linear-gradient(90deg, var(--accent), var(--success));
             width: 0%;
             transition: width 0.3s;
             border-radius: 4px;
         }
 
-        /* New: Feature badges */
+        /* BOT INFO */
+        .bot-info {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .bot-info.active {
+            display: block;
+            animation: slideUp 0.5s;
+        }
+
+        .bot-info-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .bot-name-large {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+
+        .bot-tag-small {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--success);
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* LOGS */
+        .logs-container {
+            position: relative;
+        }
+
+        .logs {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: var(--success);
+            word-wrap: break-word;
+        }
+
+        .logs:empty::before {
+            content: 'No logs yet... Start your bot to see logs here!';
+            color: #666;
+            font-style: italic;
+        }
+
+        .logs-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        /* TIPS */
+        .tip {
+            background: rgba(88, 101, 242, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .tip strong { color: var(--accent); }
+
+        .warning {
+            background: rgba(254, 231, 92, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .warning strong { color: var(--warning); }
+
+        .security-tip {
+            background: rgba(237, 66, 69, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .security-tip strong { color: var(--error); }
+
+        .success-msg {
+            background: rgba(87, 242, 135, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .success-msg strong { color: var(--success); }
+
+        /* BADGES */
         .badge {
             display: inline-block;
-            background: #5865F2;
+            background: var(--accent);
             color: white;
             padding: 3px 10px;
             border-radius: 12px;
@@ -329,133 +534,147 @@
             margin-left: 8px;
         }
 
-        .badge.free {
-            background: #57F287;
-            color: black;
-        }
+        .badge.free { background: var(--success); color: black; }
+        .badge.secure { background: var(--error); }
+        .badge.new { background: var(--warning); color: black; }
 
-        .badge.secure {
-            background: #ED4245;
-        }
-
-        /* New: Bot info display */
-        .bot-info {
-            background: #0e0e10;
-            border: 1px solid #2f2f35;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            display: none;
-        }
-
-        .bot-info.active {
-            display: block;
-        }
-
-        .bot-info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #2f2f35;
-        }
-
-        .bot-info-item:last-child {
-            border-bottom: none;
-        }
-
-        .bot-info-label {
-            opacity: 0.7;
-        }
-
-        .bot-info-value {
-            font-weight: bold;
-            color: #57F287;
-        }
-
-        /* New: FAQ section */
+        /* DETAILS/FAQ */
         details {
-            background: #0e0e10;
+            background: var(--bg-tertiary);
             padding: 15px;
             border-radius: 8px;
             margin: 10px 0;
-            border: 1px solid #2f2f35;
+            border: 1px solid var(--border);
             cursor: pointer;
+            transition: border 0.2s;
         }
+
+        details:hover { border-color: var(--accent); }
 
         details summary {
             font-weight: bold;
-            color: #5865F2;
+            color: var(--accent);
             user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        details[open] summary {
-            margin-bottom: 10px;
+        details summary::before {
+            content: '▶';
+            transition: transform 0.2s;
+            font-size: 0.8rem;
         }
 
-        details p {
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        details[open] summary { margin-bottom: 10px; }
+
+        details p, details ul, details ol {
             opacity: 0.8;
             line-height: 1.6;
             margin-top: 10px;
+            margin-left: 20px;
         }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            opacity: 0.6;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4752c4; }
+
+        /* CODE */
+        code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: var(--accent);
+        }
+
+        ul, ol { margin-left: 20px; line-height: 1.8; }
     </style>
 </head>
 <body>
+    <!-- HEADER -->
     <div class="header">
-        <div class="logo">🤖 BotForge <span class="badge free">100% FREE</span></div>
-        <a href="#" class="login-btn" id="loginBtn">Login with Discord</a>
+        <div class="logo">
+            <span class="logo-icon">🤖</span>
+            <span>BotForge <span class="badge free">FREE</span></span>
+        </div>
+        <div class="header-actions">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+            <a href="#" class="login-btn" id="loginBtn">Login</a>
+        </div>
     </div>
 
     <div class="container">
-        <!-- Welcome Card -->
+        <!-- WELCOME -->
         <div class="card">
             <h2>👋 Welcome to BotForge!</h2>
             <p>Host your Discord bot for free. No credit card. No PC required. Runs 24/7.</p>
-            
-            <div class="tip">
-                <strong>💡 Quick Start:</strong> If you're new to Discord bots, check out the FAQ at the bottom of this page first!
+            <div class="success-msg">
+                <strong>🎉 100% Free Forever!</strong> No premium plans, no hidden costs. Built by the community, for the community.
             </div>
-
-            <div class="security-tip">
-                <strong>🔒 Security First:</strong> Your token is encrypted and never stored permanently. We automatically delete old bot files to keep things clean.
+            <div class="tip">
+                <strong>💡 Quick Start:</strong> New here? Check the FAQ at the bottom first, then follow the 3-step guide below!
             </div>
         </div>
 
-        <!-- How To Guide -->
+        <!-- HOW TO -->
         <div class="card">
             <h2>📝 How to host your bot</h2>
             <p>Follow these 3 simple steps. No technical knowledge needed!</p>
-            
             <div class="steps">
                 <div class="step">
                     <div class="step-num">1</div>
                     <strong>Get your bot token</strong>
-                    <p class="help">Go to <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a> → Your App → Bot → Copy Token</p>
+                    <p class="help">Discord Developer Portal → App → Bot → Copy Token</p>
                 </div>
                 <div class="step">
                     <div class="step-num">2</div>
                     <strong>Paste your code</strong>
-                    <p class="help">Copy your Discord bot code and paste it below</p>
+                    <p class="help">Or drag & drop a file!</p>
                 </div>
                 <div class="step">
                     <div class="step-num">3</div>
                     <strong>Click Start</strong>
-                    <p class="help">Wait 5-10 seconds and your bot will be online!</p>
+                    <p class="help">Wait 5-10 seconds and watch the magic happen!</p>
                 </div>
             </div>
-
             <div class="warning">
-                <strong>⚠️ Important:</strong> Make sure your bot is <strong>invited to a server</strong> first! Otherwise it will be online but won't respond to anyone.
-                <br><br>
-                <strong>Need to invite your bot?</strong> In the Developer Portal, go to OAuth2 → URL Generator → Check "bot" → Copy the URL at the bottom → Open it in your browser.
+                <strong>⚠️ Important:</strong> Make sure your bot is invited to a server first!
+                <br>Developer Portal → OAuth2 → URL Generator → Check "bot" → Use the generated URL.
             </div>
         </div>
 
-        <!-- Code Editor -->
+        <!-- CODE EDITOR -->
         <div class="card">
             <h2>💻 Your Bot Code</h2>
-            <p>Paste your Discord bot code here. We've added a starter template you can use.</p>
-            <textarea id="botCode" placeholder="Paste your bot code here...">// Simple Discord Bot Example
-// Don't forget to enable "Message Content Intent" in Discord Developer Portal!
+            <p>Paste your Discord bot code or upload a file.</p>
+            
+            <div class="file-upload" id="fileUpload">
+                <div class="file-upload-icon">📁</div>
+                <strong>Click to upload</strong> or drag & drop
+                <p style="margin-top: 5px; font-size: 0.85rem; opacity: 0.6;">.js, .ts, .mjs files (max 100KB)</p>
+                <input type="file" id="fileInput" accept=".js,.ts,.mjs,.txt">
+            </div>
+
+            <textarea id="botCode" placeholder="Paste your bot code here or upload a file above...">// Welcome to BotForge! 🎉
+// This is a starter template - replace with your own code!
 
 const { Client, GatewayIntentBits } = require('discord.js');
 
@@ -468,64 +687,65 @@ const client = new Client({
 });
 
 client.on('messageCreate', (message) => {
-  // Don't reply to other bots!
-  if (message.author.bot) return;
-
+  if (message.author.bot) return; // Ignore bots
+  
   if (message.content === '!ping') {
-    message.reply('Pong! 🏓');
+    message.reply('🏓 Pong! Bot hosted on BotForge!');
   }
-
-  if (message.content === '!hello') {
-    message.reply(`Hello ${message.author.username}! 👋`);
+  
+  if (message.content === '!info') {
+    message.reply('🤖 I\'m running on BotForge - free Discord bot hosting!');
   }
 });
 
 client.on('ready', () => {
   console.log('✅ Bot is online as ' + client.user.tag);
   console.log('📡 Serving ' + client.guilds.cache.size + ' servers');
+  client.user.setActivity('with BotForge!', { type: 3 });
 });
 
 client.login(process.env.DISCORD_TOKEN);</textarea>
-            
+
+            <div class="btn-group" style="margin-top: 10px;">
+                <button class="btn btn-secondary btn-small" onclick="loadTemplate()">📋 Load Template</button>
+                <button class="btn btn-secondary btn-small" onclick="clearCode()">🗑️ Clear</button>
+                <button class="btn btn-secondary btn-small" onclick="formatCode()">✨ Format Code</button>
+            </div>
+
             <div class="tip">
                 <strong>💡 Code Tips:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>Make sure your code uses <code>process.env.DISCORD_TOKEN</code> for the token (not hardcoded)</li>
-                    <li>Required intents: <code>Guilds</code>, <code>GuildMessages</code>, <code>MessageContent</code></li>
-                    <li>Enable "Message Content Intent" in Discord Developer Portal → Bot section</li>
+                <ul>
+                    <li>Use <code>process.env.DISCORD_TOKEN</code> (never hardcode your token!)</li>
+                    <li>Enable "Message Content Intent" in Discord Developer Portal</li>
+                    <li>Your code is auto-saved to your browser</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Token Input -->
+        <!-- TOKEN -->
         <div class="card">
             <h2>🔑 Bot Token <span class="badge secure">ENCRYPTED</span></h2>
-            <p>Paste your bot token below. It's stored securely and never shared with anyone.</p>
-            <input type="password" id="botToken" placeholder="Paste your bot token here (e.g., MTIzNDU2Nzg5...)">
+            <p>Paste your bot token below. Stored securely and auto-deleted after 1 hour.</p>
+            <input type="password" id="botToken" placeholder="Paste your bot token here...">
             
-            <div class="security-tip">
-                <strong>🛡️ Security Tips:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>Never share your token with anyone — they can control your bot!</li>
-                    <li>If your token leaks, reset it immediately in Discord Developer Portal</li>
-                    <li>We delete bot files after 1 hour for extra security</li>
-                    <li>Your token is only used to run YOUR bot</li>
-                </ul>
+            <div class="btn-group" style="margin-top: 10px;">
+                <button class="btn btn-secondary btn-small" onclick="toggleTokenVisibility()">👁️ Show/Hide</button>
+                <button class="btn btn-secondary btn-small" onclick="pasteToken()">📋 Paste</button>
+                <button class="btn btn-secondary btn-small" onclick="clearToken()">🗑️ Clear</button>
             </div>
 
-            <div class="warning">
-                <strong>⚠️ Can't find your token?</strong> 
-                <ol style="margin-left: 20px; margin-top: 8px;">
-                    <li>Go to <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a></li>
-                    <li>Select your application (or create one)</li>
-                    <li>Click "Bot" in the left sidebar</li>
-                    <li>Click "Reset Token" and copy the new one</li>
-                    <li><strong>Keep this token secret!</strong></li>
-                </ol>
+            <div class="security-tip">
+                <strong>🛡️ Security:</strong>
+                <ul>
+                    <li>Never share your token - it controls your bot!</li>
+                    <li>Token is deleted after 1 hour automatically</li>
+                    <li>Reset your token in Discord if you think it's compromised</li>
+                    <li>We never log or store tokens permanently</li>
+                </ul>
             </div>
         </div>
 
-        <!-- Control Panel -->
+        <!-- CONTROL PANEL -->
         <div class="card">
             <h2>🎮 Control Panel</h2>
             <p>Start or stop your bot anytime.</p>
@@ -534,9 +754,9 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 Status: <span id="status" class="status offline">Offline</span>
             </div>
 
-            <!-- Countdown Timer (Hidden by default) -->
+            <!-- COUNTDOWN -->
             <div class="countdown" id="countdown">
-                <div class="countdown-label">⏱️ Starting your bot...</div>
+                <div class="countdown-label" id="countdownLabel">⏱️ Starting your bot...</div>
                 <div class="countdown-number" id="countdownNumber">10</div>
                 <div class="countdown-label">seconds remaining</div>
                 <div class="progress-bar">
@@ -544,157 +764,89 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 </div>
             </div>
 
-            <!-- Bot Info (Hidden by default) -->
+            <!-- BOT INFO -->
             <div class="bot-info" id="botInfo">
-                <div class="bot-info-item">
-                    <span class="bot-info-label">Bot Name:</span>
-                    <span class="bot-info-value" id="botName">-</span>
+                <div class="bot-info-header">
+                    <div class="bot-avatar" id="botAvatar">🤖</div>
+                    <div>
+                        <div class="bot-name-large" id="botName">-</div>
+                        <div class="bot-tag-small" id="botTag">-</div>
+                    </div>
                 </div>
-                <div class="bot-info-item">
-                    <span class="bot-info-label">Status:</span>
-                    <span class="bot-info-value">🟢 Online & Running</span>
-                </div>
-                <div class="bot-info-item">
-                    <span class="bot-info-label">Uptime:</span>
-                    <span class="bot-info-value" id="uptime">0s</span>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Uptime</div>
+                        <div class="stat-value" id="uptime">0s</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Logs</div>
+                        <div class="stat-value" id="logCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="font-size: 1rem;">🟢 Online</div>
+                    </div>
                 </div>
             </div>
             
             <div class="btn-group">
                 <button class="btn" id="startBtn" onclick="startBot()">▶️ Start Bot</button>
                 <button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>⏹️ Stop Bot</button>
-            </div>
-
-            <div class="tip" style="margin-top: 20px;">
-                <strong>⏱️ Why does it take 5-10 seconds?</strong> First-time setup includes installing discord.js (~30s on cold start, 5s on warm). Subsequent starts are nearly instant!
+                <button class="btn btn-secondary" id="restartBtn" onclick="restartBot()" disabled>🔄 Restart</button>
             </div>
         </div>
 
-        <!-- Live Logs -->
+        <!-- LOGS -->
         <div class="card">
             <h2>📊 Live Logs</h2>
-            <p>See what your bot is doing in real-time. Updated every 3 seconds.</p>
-            <div class="logs" id="logs"></div>
-
-            <div class="tip">
-                <strong>💡 Reading Logs:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>🟢 <strong>Green text</strong> = Normal output from your bot</li>
-                    <li>🔴 <strong>Red text</strong> = Errors (something went wrong)</li>
-                    <li>Logs auto-scroll to show the latest messages</li>
-                </ul>
+            <p>Real-time output from your bot. Auto-updates every 3 seconds.</p>
+            <div class="logs-container">
+                <div class="logs" id="logs"></div>
+                <div class="logs-actions">
+                    <button class="btn btn-secondary btn-small" onclick="copyLogs()">📋 Copy</button>
+                    <button class="btn btn-secondary btn-small" onclick="downloadLogs()">💾 Download</button>
+                    <button class="btn btn-secondary btn-small" onclick="clearLogs()">🗑️ Clear</button>
+                </div>
             </div>
         </div>
 
         <!-- FAQ -->
         <div class="card">
             <h2>❓ Frequently Asked Questions</h2>
-            <p>Click any question to see the answer:</p>
-
             <details>
-                <summary>🤔 What if my bot doesn't come online?</summary>
-                <p><strong>Try these fixes:</strong></p>
-                <ol style="margin-left: 20px;">
-                    <li>Check that your token is correct (no extra spaces)</li>
-                    <li>Enable "Message Content Intent" in Discord Developer Portal</li>
-                    <li>Make sure your code uses <code>process.env.DISCORD_TOKEN</code></li>
-                    <li>Check the logs above for error messages</li>
-                    <li>Verify your bot was invited to a server</li>
+                <summary>🤔 My bot won't come online, what do I do?</summary>
+                <p>Try these fixes in order:</p>
+                <ol>
+                    <li>Check your token (no extra spaces!)</li>
+                    <li>Enable "Message Content Intent" in Discord</li>
+                    <li>Make sure code uses <code>process.env.DISCORD_TOKEN</code></li>
+                    <li>Check logs for error messages</li>
+                    <li>Verify bot is invited to a server</li>
                 </ol>
             </details>
-
             <details>
                 <summary>💸 Is this really free?</summary>
-                <p><strong>Yes, 100% free forever!</strong> We use free hosting tiers from Netlify (website) and Render (backend). There are no hidden costs, no premium plans, and no credit card required.</p>
+                <p>Yes! 100% free forever. No credit card, no premium plans, no hidden costs.</p>
             </details>
-
             <details>
                 <summary>🔒 Is my token safe?</summary>
-                <p><strong>Yes!</strong> Your token is:
-                <ul style="margin-left: 20px;">
-                    <li>Never shared with anyone</li>
-                    <li>Only used to run YOUR bot</li>
-                    <li>Deleted after 1 hour</li>
-                    <li>Never logged or stored permanently</li>
-                </ul>
-                </p>
+                <p>Absolutely! Your token is encrypted, never shared, and auto-deleted after 1 hour.</p>
             </details>
-
             <details>
-                <summary>⏱️ Why is the first start slow?</summary>
-                <p>The first time you start a bot, it needs to install discord.js (the library that connects to Discord). This takes 5-10 seconds. After that, subsequent bots start in 3-5 seconds!</p>
+                <summary>⏱️ Why does the first start take longer?</summary>
+                <p>First-time setup includes installing discord.js. Subsequent starts are nearly instant!</p>
             </details>
-
             <details>
-                <summary>🚫 Can I get banned for using this?</summary>
-                <p>No! You're using your own bot with your own token. This is the same as running the bot on your own computer, just on our servers. Discord doesn't care where your bot runs, as long as it follows their Terms of Service.</p>
-            </details>
-
-            <details>
-                <summary>🛠️ What if my bot crashes?</summary>
-                <p>Check the Live Logs section for error messages. Common issues:
-                <ul style="margin-left: 20px;">
-                    <li>Syntax errors in your code</li>
-                    <li>Missing dependencies in your code</li>
-                    <li>Wrong intents enabled</li>
-                    <li>Invalid token permissions</li>
-                </ul>
-                Fix the issue and click "Start Bot" again!
-            </details>
-
-            <details>
-                <summary>📊 How many bots can I run?</summary>
-                <p>On the free tier, you can run 1 bot at a time. Stop your current bot before starting a new one. We're working on supporting multiple bots in the future!</p>
+                <summary>🚀 How do I make my bot better?</summary>
+                <p>Join the Discord.js community: <a href="https://discord.gg/djs" target="_blank">discord.gg/djs</a> for help and tutorials!</p>
             </details>
         </div>
+    </div>
 
-        <!-- Best Practices -->
-        <div class="card">
-            <h2>✨ Best Practices & Pro Tips</h2>
-            
-            <div class="tip">
-                <strong>🎯 Before You Start:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>Test your bot locally first (on your PC)</li>
-                    <li>Use environment variables for sensitive data</li>
-                    <li>Add error handling to your code</li>
-                    <li>Enable required intents in Discord Developer Portal</li>
-                </ul>
-            </div>
-
-            <div class="security-tip">
-                <strong>🔒 Security Best Practices:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>Never commit your token to GitHub</li>
-                    <li>Use environment variables (we handle this for you!)</li>
-                    <li>Reset your token if you think it's compromised</li>
-                    <li>Don't share your code publicly with hardcoded tokens</li>
-                    <li>Add rate limiting to prevent spam in your bot</li>
-                </ul>
-            </div>
-
-            <div class="warning">
-                <strong>⚠️ Common Mistakes to Avoid:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>❌ Hardcoding the token in your code (use process.env.DISCORD_TOKEN)</li>
-                    <li>❌ Forgetting to enable Message Content Intent</li>
-                    <li>❌ Using <code>client.login("your_token_here")</code> instead of <code>client.login(process.env.DISCORD_TOKEN)</code></li>
-                    <li>❌ Not inviting the bot to a server before testing</li>
-                    <li>❌ Copy-pasting code with extra spaces in the token</li>
-                </ul>
-            </div>
-
-            <div class="tip">
-                <strong>🚀 Pro Tips:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>💾 Save your code locally as a backup</li>
-                    <li>📝 Use comments in your code for clarity</li>
-                    <li>🔄 Test changes on your PC before deploying here</li>
-                    <li>📊 Monitor your bot's performance in Discord</li>
-                    <li>💬 Join Discord.js support server for help: <a href="https://discord.gg/djs" target="_blank">discord.gg/djs</a></li>
-                </ul>
-            </div>
-        </div>
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>Made with 💜 for the Discord community | BotForge © 2025</p>
+        <p style="margin-top: 10px;">Free • Secure • Open Source</p>
     </div>
 
     <script>
@@ -704,11 +856,98 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         const BACKEND_URL = 'https://botforge-4k7j.onrender.com';
 
         // =====================================================
-        // STATE MANAGEMENT
+        // STATE
         // =====================================================
         let botStartTime = null;
         let uptimeInterval = null;
         let countdownInterval = null;
+        let logCount = 0;
+        let currentBot = null;
+
+        // =====================================================
+        // THEME
+        // =====================================================
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.getElementById('themeToggle');
+            if (document.body.classList.contains('light-mode')) {
+                btn.textContent = '☀️ Light';
+                localStorage.setItem('theme', 'light');
+            } else {
+                btn.textContent = '🌙 Dark';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.getElementById('themeToggle').textContent = '☀️ Light';
+        }
+
+        // =====================================================
+        // AUTO-SAVE TO LOCALSTORAGE
+        // =====================================================
+        function autoSave() {
+            localStorage.setItem('botCode', document.getElementById('botCode').value);
+        }
+
+        function autoLoad() {
+            const saved = localStorage.getItem('botCode');
+            if (saved) {
+                document.getElementById('botCode').value = saved;
+            }
+        }
+
+        // Save on every keystroke
+        document.getElementById('botCode')?.addEventListener('input', autoSave);
+
+        // Load saved code on page load
+        autoLoad();
+
+        // =====================================================
+        // FILE UPLOAD
+        // =====================================================
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fileInput');
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFile(file);
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+            if (file.size > 100000) {
+                addLog('❌ File too large! Max 100KB.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('botCode').value = e.target.result;
+                addLog(`✅ Loaded file: ${file.name}`);
+                autoSave();
+            };
+            reader.readAsText(file);
+        }
 
         // =====================================================
         // HELPER FUNCTIONS
@@ -718,36 +957,41 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             const time = new Date().toLocaleTimeString();
             logs.textContent += `[${time}] ${message}\n`;
             logs.scrollTop = logs.scrollHeight;
+            logCount++;
+            document.getElementById('logCount').textContent = logCount;
         }
 
         function setStatus(state) {
             const status = document.getElementById('status');
             const startBtn = document.getElementById('startBtn');
             const stopBtn = document.getElementById('stopBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            
+            status.className = 'status ' + state;
+            status.textContent = state.charAt(0).toUpperCase() + state.slice(1);
             
             if (state === 'online') {
-                status.className = 'status online';
-                status.textContent = 'Online';
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
-            } else if (state === 'starting') {
-                status.className = 'status starting';
-                status.textContent = 'Starting...';
+                restartBtn.disabled = false;
+            } else if (state === 'starting' || state === 'stopping') {
                 startBtn.disabled = true;
                 stopBtn.disabled = true;
+                restartBtn.disabled = true;
             } else {
-                status.className = 'status offline';
-                status.textContent = 'Offline';
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
+                restartBtn.disabled = true;
             }
         }
 
-        function showCountdown(seconds) {
+        function showCountdown(seconds, label) {
             const countdown = document.getElementById('countdown');
             const numberEl = document.getElementById('countdownNumber');
+            const labelEl = document.getElementById('countdownLabel');
             const progress = document.getElementById('progressFill');
             
+            labelEl.textContent = label;
             countdown.classList.add('active');
             let remaining = seconds;
             
@@ -760,17 +1004,25 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 
                 if (remaining <= 0) {
                     clearInterval(countdownInterval);
-                    countdown.classList.remove('active');
                 }
                 remaining--;
             }, 1000);
         }
 
+        function hideCountdown() {
+            document.getElementById('countdown').classList.remove('active');
+            if (countdownInterval) clearInterval(countdownInterval);
+        }
+
         function showBotInfo(botTag) {
             const botInfo = document.getElementById('botInfo');
-            document.getElementById('botName').textContent = botTag;
+            const [name, tag] = botTag.split('#');
+            document.getElementById('botName').textContent = name;
+            document.getElementById('botTag').textContent = '#' + tag;
+            document.getElementById('botAvatar').textContent = name.charAt(0).toUpperCase();
             botInfo.classList.add('active');
             botStartTime = Date.now();
+            currentBot = botTag;
             
             if (uptimeInterval) clearInterval(uptimeInterval);
             uptimeInterval = setInterval(() => {
@@ -784,41 +1036,125 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         }
 
         function hideBotInfo() {
-            const botInfo = document.getElementById('botInfo');
-            botInfo.classList.remove('active');
+            document.getElementById('botInfo').classList.remove('active');
             if (uptimeInterval) {
                 clearInterval(uptimeInterval);
                 uptimeInterval = null;
             }
+            currentBot = null;
         }
 
         // =====================================================
-        // BOT CONTROL FUNCTIONS
+        // TOKEN UTILITIES
+        // =====================================================
+        function toggleTokenVisibility() {
+            const input = document.getElementById('botToken');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        async function pasteToken() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('botToken').value = text;
+                addLog('📋 Token pasted from clipboard');
+            } catch {
+                addLog('❌ Could not access clipboard');
+            }
+        }
+
+        function clearToken() {
+            document.getElementById('botToken').value = '';
+            addLog('🗑️ Token cleared');
+        }
+
+        // =====================================================
+        // CODE UTILITIES
+        // =====================================================
+        function loadTemplate() {
+            const template = `// BotForge Starter Bot
+const { Client, GatewayIntentBits } = require('discord.js');
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
+});
+
+client.on('messageCreate', (message) => {
+  if (message.author.bot) return;
+  if (message.content === '!ping') message.reply('Pong! 🏓');
+});
+
+client.on('ready', () => {
+  console.log('Bot online as ' + client.user.tag);
+});
+
+client.login(process.env.DISCORD_TOKEN);`;
+            document.getElementById('botCode').value = template;
+            autoSave();
+            addLog('📋 Template loaded');
+        }
+
+        function clearCode() {
+            if (confirm('Clear all code?')) {
+                document.getElementById('botCode').value = '';
+                autoSave();
+                addLog('🗑️ Code cleared');
+            }
+        }
+
+        function formatCode() {
+            addLog('✨ Code formatting coming soon!');
+        }
+
+        // =====================================================
+        // LOG UTILITIES
+        // =====================================================
+        function copyLogs() {
+            const logs = document.getElementById('logs').textContent;
+            navigator.clipboard.writeText(logs).then(() => {
+                addLog('📋 Logs copied to clipboard');
+            });
+        }
+
+        function downloadLogs() {
+            const logs = document.getElementById('logs').textContent;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `botforge-logs-${Date.now()}.txt`;
+            a.click();
+            addLog('💾 Logs downloaded');
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').textContent = '';
+            logCount = 0;
+            document.getElementById('logCount').textContent = '0';
+            addLog('🗑️ Logs cleared');
+        }
+
+        // =====================================================
+        // BOT CONTROL
         // =====================================================
         async function startBot() {
             const code = document.getElementById('botCode').value.trim();
             const token = document.getElementById('botToken').value.trim();
             
-            if (!token) {
-                addLog('❌ Please enter your bot token!');
-                return;
-            }
-            
-            if (!code) {
-                addLog('❌ Please paste your bot code!');
-                return;
+            if (!token) { addLog('❌ Please enter your bot token!'); return; }
+            if (!code) { addLog('❌ Please paste your bot code!'); return; }
+
+            if (!code.includes('process.env.DISCORD_TOKEN')) {
+                addLog('⚠️ Warning: Use process.env.DISCORD_TOKEN for the token!');
             }
 
-            // Pre-flight checks
-            if (!code.includes('process.env.DISCORD_TOKEN') && !code.includes('process.env')) {
-                addLog('⚠️ Warning: Your code should use process.env.DISCORD_TOKEN for the token');
-            }
-            
             setStatus('starting');
             addLog('🚀 Starting your bot...');
-            addLog('🔍 Validating token with Discord...');
-            addLog('⏱️ This usually takes 5-10 seconds...');
-            showCountdown(10);
+            addLog('🔍 Validating token...');
+            showCountdown(10, '⏱️ Starting your bot...');
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/bot/start`, {
@@ -829,30 +1165,34 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 
                 if (!response.ok) {
                     addLog(`❌ Server error: ${response.status}`);
-                    addLog('💡 The backend might be starting up. Wait 30 seconds and try again.');
+                    addLog('💡 Backend might be waking up. Wait 30s and try again.');
                     setStatus('offline');
+                    hideCountdown();
                     return;
                 }
                 
                 const data = await response.json();
+                hideCountdown();
                 
                 if (data.success) {
                     setStatus('online');
                     showBotInfo(data.botTag);
                     addLog(data.message);
-                    addLog('💡 Tip: Check your Discord server to see if the bot is online!');
+                    addLog('💡 Check your Discord server!');
+                    addLog('💡 Bot commands should work now!');
                 } else {
                     setStatus('offline');
-                    addLog(data.message || '❌ Unknown error occurred');
+                    addLog(data.message || '❌ Unknown error');
                     if (data.message && data.message.includes('invalid')) {
-                        addLog('💡 Tip: Double-check your token in the Discord Developer Portal');
+                        addLog('💡 Double-check your token in Discord Developer Portal');
                     }
                 }
             } catch (err) {
+                hideCountdown();
                 setStatus('offline');
                 if (err.message.includes('Failed to fetch')) {
-                    addLog('❌ Cannot reach backend server');
-                    addLog('💡 The server might be starting up. Wait 30 seconds and try again.');
+                    addLog('❌ Cannot reach backend');
+                    addLog('💡 Backend might be starting up. Wait 30s and try again.');
                 } else {
                     addLog('❌ Error: ' + err.message);
                 }
@@ -861,6 +1201,8 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
 
         async function stopBot() {
             addLog('⏹️ Stopping your bot...');
+            showCountdown(5, '⏹️ Stopping your bot...');
+            setStatus('stopping');
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/bot/stop`, {
@@ -872,15 +1214,26 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 addLog('❌ Connection error: ' + err.message);
             }
             
-            setStatus('offline');
-            hideBotInfo();
-            addLog('✅ Bot stopped successfully');
-            addLog('💡 You can now start a new bot or edit your code');
+            setTimeout(() => {
+                hideCountdown();
+                setStatus('offline');
+                hideBotInfo();
+                addLog('✅ Bot stopped successfully');
+            }, 5000);
         }
 
-        // Welcome message
+        async function restartBot() {
+            addLog('🔄 Restarting bot...');
+            await stopBot();
+            setTimeout(() => startBot(), 6000);
+        }
+
+        // =====================================================
+        // WELCOME
+        // =====================================================
         addLog('👋 Welcome to BotForge!');
-        addLog('💡 Paste your bot code and token, then click Start');
+        addLog('💡 Paste your code and token, then click Start');
+        addLog('📚 Check the FAQ if you need help');
     </script>
 </body>
 </html>
