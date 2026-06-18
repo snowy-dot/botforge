@@ -1,12 +1,12 @@
 // =====================================================
-// BotForge Backend - SECURE VERSION 5.0
-// With isolated-vm sandboxing & resource limits
+// BotForge Backend - SECURE VERSION 5.1
+// Using vm2 for sandboxing (works with Node v24!)
 // =====================================================
 
 import express from "express";
 import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
-import ivm from "isolated-vm";
+import { NodeVM } from "vm2";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -25,18 +25,17 @@ app.use(express.json({ limit: "5mb" }));
 // SECURITY CONFIGURATION
 // =====================================================
 const SECURITY = {
-  MAX_MEMORY_MB: 128,        // Max RAM per bot (MB)
-  MAX_CPU_TIME_MS: 5000,     // Max CPU time per execution (5 seconds)
-  BOT_TIMEOUT_MS: 300000,    // Auto-kill bot after 5 minutes
-  MAX_CODE_SIZE: 50000,      // Max code size (50KB)
-  MAX_BOT_COUNT: 5           // Max concurrent bots
+  MAX_MEMORY_MB: 128,
+  MAX_CPU_TIME_MS: 5000,
+  BOT_TIMEOUT_MS: 300000,
+  MAX_CODE_SIZE: 50000,
+  MAX_BOT_COUNT: 5
 };
 
 const runningBots = new Map();
 
 // =====================================================
 // DANGEROUS PATTERNS CHECK
-// Block code that tries to do harmful things
 // =====================================================
 const DANGEROUS_PATTERNS = [
   /require\s*\(\s*['"]child_process['"]\s*\)/i,
@@ -44,7 +43,6 @@ const DANGEROUS_PATTERNS = [
   /require\s*\(\s*['"]fs\//i,
   /process\.exit/i,
   /process\.kill/i,
-  /process\.env/i,
   /eval\s*\(/i,
   /Function\s*\(/i,
   /\bnew\s+Function\s*\(/i,
@@ -52,8 +50,9 @@ const DANGEROUS_PATTERNS = [
   /require\s*\(\s*['"]https['"]\s*\)/i,
   /require\s*\(\s*['"]net['"]\s*\)/i,
   /require\s*\(\s*['"]dgram['"]\s*\)/i,
-  /\bwhile\s*\(\s*true\s*\)/i,  // Infinite loops
-  /\bfor\s*\(\s*;;\s*\)/i       // Infinite loops
+  /\bwhile\s*\(\s*true\s*\)/i,
+  /\bfor\s*\(\s*;;\s*\)/i,
+  /setInterval\s*\([^,]+,\s*1\s*\)/i  // Fast intervals can DoS
 ];
 
 function checkCodeSafety(code) {
@@ -65,7 +64,6 @@ function checkCodeSafety(code) {
     }
   }
 
-  // Check for Discord.js usage (required)
   if (!code.includes('discord.js')) {
     violations.push('Code must use discord.js');
   }
@@ -74,94 +72,70 @@ function checkCodeSafety(code) {
 }
 
 // =====================================================
-// SANDBOXED BOT RUNNER
-// Runs user code in isolated-vm with strict limits
+// SANDBOXED BOT RUNNER (using vm2)
 // =====================================================
 class SandboxedBot {
   constructor(userId, code, token) {
     this.userId = userId;
     this.code = code;
     this.token = token;
-    this.isolate = null;
-    this.script = null;
+    this.vm = null;
     this.logs = [];
     this.startTime = Date.now();
-    this.errorCount = 0;
   }
 
   async start() {
     try {
-      // Create isolated VM with memory limit
-      this.isolate = new ivm.Isolate({
+      // Load discord.js library code
+      const discordPath = path.join(__dirname, "node_modules", "discord.js");
+      
+      // Create secure VM
+      this.vm = new NodeVM({
+        console: 'redirect',
+        sandbox: {
+          process: {
+            env: {
+              DISCORD_TOKEN: this.token
+            }
+          },
+          // Provide a safe require that only allows discord.js
+          // We'll inject this into the code
+        },
+        require: {
+          external: false,  // Don't allow external modules
+          builtin: [],       // Don't allow built-in modules
+          root: path.join(__dirname, "node_modules"),
+          mock: {
+            // Mock dangerous modules if someone tries to require them
+            fs: {},
+            child_process: {},
+            http: {},
+            https: {},
+            net: {},
+            dgram: {}
+          }
+        },
+        timeout: SECURITY.MAX_CPU_TIME_MS,
         memoryLimit: SECURITY.MAX_MEMORY_MB
       });
 
-      // Create context (what the bot can access)
-      const context = await this.isolate.createContext();
-
-      // Set up safe APIs that the bot can use
-      const jail = context.global;
-
-      // Provide a safe console.log
-      await jail.set('global', jail.derefInto());
-
-      // Provide the Discord.js library
-      await jail.set('_discord', new ivm.Reference({
-        Client: this.isolate.embedder.embedSync ? 
-          await this.loadDiscordJS() : null
-      }));
-
-      // Provide safe console
-      await jail.set('console', new ivm.Reference({
-        log: (...args) => {
-          const msg = args.map(a => String(a)).join(' ');
-          this.logs.push(msg);
-          if (this.logs.length > 100) this.logs.shift();
-          console.log(`[Bot ${this.userId}] ${msg}`);
-        },
-        error: (...args) => {
-          const msg = args.map(a => String(a)).join(' ');
-          this.logs.push(`[ERROR] ${msg}`);
-          if (this.logs.length > 100) this.logs.shift();
-          console.error(`[Bot ${this.userId}] ERROR: ${msg}`);
-        },
-        warn: (...args) => {
-          const msg = args.map(a => String(a)).join(' ');
-          this.logs.push(`[WARN] ${msg}`);
-        }
-      }));
-
-      // Provide safe environment (only the token)
-      await jail.set('process', new ivm.Reference({
-        env: new ivm.Reference({
-          get: () => this.token
-        })
-      }));
-
-      // Wrap the user code to inject our safe Discord.js
+      // Wrap user code to override require
       const wrappedCode = `
-        ${this.code.replace(/require\(['"]discord\.js['"]\)/g, 'global._discord')}
-        
-        // Provide a fake require that only allows discord.js
-        const require = (mod) => {
-          if (mod === 'discord.js') return global._discord;
-          throw new Error('Module not allowed: ' + mod);
+        // Override require to only allow discord.js
+        const Module = require('module');
+        const originalRequire = Module.prototype.require;
+        Module.prototype.require = function(id) {
+          if (id === 'discord.js') {
+            return originalRequire.call(this, 'discord.js');
+          }
+          throw new Error('Module not allowed: ' + id + '. Only discord.js is permitted.');
         };
+        
+        ${this.code}
       `;
 
-      // Compile the script
-      this.script = await this.isolate.compileScript(wrappedCode);
-
-      // Run with timeout
-      await Promise.race([
-        this.script.run(context, {
-          timeout: SECURITY.MAX_CPU_TIME_MS
-        }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Execution timeout')), 
-                     SECURITY.MAX_CPU_TIME_MS)
-        )
-      ]);
+      // Run code in VM
+      this.vm.run(wrappedCode, 'bot.js');
 
       this.logs.push('✅ Bot started successfully in sandbox');
       return { success: true };
@@ -171,17 +145,13 @@ class SandboxedBot {
     }
   }
 
-  async loadDiscordJS() {
-    // This is a placeholder - we'll use a different approach
-    return null;
-  }
-
   async stop() {
-    if (this.isolate) {
+    if (this.vm) {
       try {
-        this.isolate.dispose();
+        // vm2 doesn't have explicit dispose, but GC will handle it
+        this.vm = null;
       } catch (err) {
-        console.error('Error disposing isolate:', err.message);
+        console.error('Error stopping VM:', err.message);
       }
     }
   }
@@ -203,7 +173,7 @@ app.get("/", (req, res) => {
   res.json({
     message: "🤖 BotForge Backend is running!",
     status: "online",
-    version: "5.0.0 - SECURE with sandboxing!",
+    version: "5.1.0 - SECURE with vm2 sandboxing!",
     security: {
       sandboxed: true,
       memoryLimit: SECURITY.MAX_MEMORY_MB + "MB",
@@ -257,9 +227,6 @@ app.post("/api/validate-token", async (req, res) => {
   }
 });
 
-// =====================================================
-// SECURE BOT START ENDPOINT
-// =====================================================
 app.post("/api/bot/start", async (req, res) => {
   const { code, token } = req.body;
   const userId = req.ip || "user-" + Date.now();
@@ -279,7 +246,7 @@ app.post("/api/bot/start", async (req, res) => {
   if (runningBots.size >= SECURITY.MAX_BOT_COUNT) {
     return res.json({ 
       success: false, 
-      message: "❌ Server is at max capacity. Try again later!" 
+      message: "❌ Server at max capacity!" 
     });
   }
 
@@ -290,12 +257,12 @@ app.post("/api/bot/start", async (req, res) => {
     });
   }
 
-  // SECURITY CHECK: Scan code for dangerous patterns
+  // SECURITY CHECK
   const violations = checkCodeSafety(code);
   if (violations.length > 0) {
     return res.json({
       success: false,
-      message: `❌ Security violation! Disallowed code patterns detected.`
+      message: `❌ Security violation! Disallowed code patterns detected. Your code uses dangerous functions.`
     });
   }
 
@@ -316,7 +283,7 @@ app.post("/api/bot/start", async (req, res) => {
     } catch (sandboxError) {
       return res.json({
         success: false,
-        message: `❌ Sandbox error: ${sandboxError.message}. Your code might use forbidden features.`
+        message: `❌ Sandbox error: ${sandboxError.message}`
       });
     }
 
@@ -340,7 +307,8 @@ app.post("/api/bot/start", async (req, res) => {
       botTag: botTag,
       security: {
         memoryLimit: SECURITY.MAX_MEMORY_MB + "MB",
-        autoKillIn: Math.floor(SECURITY.BOT_TIMEOUT_MS / 60000) + " minutes"
+        autoKillIn: Math.floor(SECURITY.BOT_TIMEOUT_MS / 60000) + " minutes",
+        codeScanned: true
       }
     });
   } catch (error) {
@@ -367,14 +335,13 @@ app.post("/api/bot/stop", (req, res) => {
     
     res.json({ 
       success: true, 
-      message: `✅ Bot ${botData.botTag} stopped and sandbox cleaned up!` 
+      message: `✅ Bot ${botData.botTag} stopped and sandbox cleaned!` 
     });
   } catch (error) {
     res.json({ success: false, message: `❌ Error: ${error.message}` });
   }
 });
 
-// New endpoint to get bot logs
 app.get("/api/bot/logs/:userId", (req, res) => {
   const botData = runningBots.get(req.params.userId);
   if (!botData) {
@@ -384,15 +351,10 @@ app.get("/api/bot/logs/:userId", (req, res) => {
     running: true,
     botTag: botData.botTag,
     uptime: Date.now() - botData.startTime,
-    logs: botData.bot.getLogs(),
-    security: {
-      memoryUsed: botData.bot.isolate ? 
-        Math.floor(process.memoryUsage().heapUsed / 1024 / 1024) + "MB" : "unknown"
-    }
+    logs: botData.bot.getLogs()
   });
 });
 
-// Admin endpoint to see all running bots
 app.get("/api/bots", (req, res) => {
   const bots = Array.from(runningBots.entries()).map(([userId, data]) => ({
     userId: userId,
@@ -408,11 +370,9 @@ app.get("/api/bots", (req, res) => {
   });
 });
 
-// =====================================================
-// CLEANUP ON SERVER SHUTDOWN
-// =====================================================
+// Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 Shutting down - cleaning up all sandboxes...');
+  console.log('🛑 Shutting down - cleaning up sandboxes...');
   for (const [userId, botData] of runningBots.entries()) {
     clearTimeout(botData.timeoutId);
     await botData.bot.stop();
@@ -421,8 +381,8 @@ process.on('SIGTERM', async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ BotForge v5.0 (SECURE) running on port ${PORT}`);
-  console.log(`🛡️ Sandboxing: ENABLED`);
+  console.log(`✅ BotForge v5.1 (SECURE) running on port ${PORT}`);
+  console.log(`🛡️ vm2 Sandboxing: ENABLED`);
   console.log(`🔒 Memory limit: ${SECURITY.MAX_MEMORY_MB}MB per bot`);
   console.log(`⏱️ Auto-kill: ${SECURITY.BOT_TIMEOUT_MS / 1000}s`);
   console.log(`🚫 Dangerous code patterns: BLOCKED`);
