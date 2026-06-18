@@ -1,6 +1,6 @@
 {
   "name": "botforge-server",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "type": "module",
   "scripts": {
     "start": "node index.js"
@@ -9,6 +9,7 @@
     "express": "^4.19.2",
     "cors": "^2.8.5",
     "discord.js": "^14.14.0",
-    "vm2": "^3.9.19"
+    "vm2": "^3.9.19",
+    "openai": "^4.20.0"
   }
 }
