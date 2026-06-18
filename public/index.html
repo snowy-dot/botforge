@@ -19,7 +19,6 @@
             padding: 20px;
         }
 
-        /* Simple header */
         .header {
             max-width: 900px;
             margin: 0 auto 30px;
@@ -43,7 +42,6 @@
             font-weight: bold;
         }
 
-        /* Main card */
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -67,7 +65,6 @@
             margin-bottom: 20px;
         }
 
-        /* Steps */
         .steps {
             display: flex;
             gap: 20px;
@@ -97,7 +94,6 @@
             margin-bottom: 10px;
         }
 
-        /* Code input */
         textarea {
             width: 100%;
             background: #0e0e10;
@@ -111,7 +107,6 @@
             resize: vertical;
         }
 
-        /* Token input */
         input[type="password"], input[type="text"] {
             width: 100%;
             background: #0e0e10;
@@ -123,7 +118,6 @@
             font-size: 1rem;
         }
 
-        /* Buttons */
         .btn {
             display: inline-block;
             background: #57F287;
@@ -153,7 +147,6 @@
             margin-top: 20px;
         }
 
-        /* Status */
         .status {
             display: inline-flex;
             align-items: center;
@@ -182,7 +175,6 @@
             background: currentColor;
         }
 
-        /* Logs */
         .logs {
             background: #0a0a0c;
             border-radius: 8px;
@@ -200,7 +192,6 @@
             color: #666;
         }
 
-        /* Help text */
         .help {
             font-size: 0.85rem;
             opacity: 0.6;
@@ -213,15 +204,12 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <div class="header">
         <div class="logo">🤖 BotForge</div>
         <a href="#" class="login-btn" id="loginBtn">Login with Discord</a>
     </div>
 
-    <!-- Main container -->
     <div class="container">
-        <!-- Step-by-step guide -->
         <div class="card">
             <h2>📝 How to host your bot</h2>
             <p>Follow these 3 simple steps. No technical knowledge needed!</p>
@@ -245,7 +233,6 @@
             </div>
         </div>
 
-        <!-- Code editor -->
         <div class="card">
             <h2>💻 Your Bot Code</h2>
             <p>Paste your Discord bot code here. Don't have one? We've added a starter template below.</p>
@@ -278,7 +265,6 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             <p class="help">🔒 Your token is encrypted and only used to run your bot.</p>
         </div>
 
-        <!-- Controls -->
         <div class="card">
             <h2>🎮 Control Panel</h2>
             <p>Start or stop your bot anytime.</p>
@@ -293,14 +279,12 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             </div>
         </div>
 
-        <!-- Logs -->
         <div class="card">
             <h2>📊 Live Logs</h2>
             <p>See what your bot is doing in real-time.</p>
             <div class="logs" id="logs"></div>
         </div>
 
-        <!-- Help -->
         <div class="card">
             <h2>❓ Need Help?</h2>
             <p>If something isn't working, try these common fixes:</p>
@@ -314,9 +298,14 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
     </div>
 
     <script>
-        // We'll connect this to the backend soon!
+        // =====================================================
+        // CONFIGURATION
+        // =====================================================
         const BACKEND_URL = 'https://botforge-4k7j.onrender.com';
-        
+
+        // =====================================================
+        // HELPER FUNCTIONS
+        // =====================================================
         function addLog(message) {
             const logs = document.getElementById('logs');
             const time = new Date().toLocaleTimeString();
@@ -342,6 +331,9 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             }
         }
 
+        // =====================================================
+        // BOT CONTROL FUNCTIONS
+        // =====================================================
         async function startBot() {
             const code = document.getElementById('botCode').value;
             const token = document.getElementById('botToken').value;
@@ -357,8 +349,8 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             }
             
             addLog('🚀 Starting your bot...');
+            addLog('🔍 Validating token...');
             
-            // For now, just simulate it (we'll connect to backend next)
             try {
                 const response = await fetch(`${BACKEND_URL}/api/bot/start`, {
                     method: 'POST',
@@ -366,22 +358,30 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                     body: JSON.stringify({ code, token })
                 });
                 
+                // Check if response is OK
+                if (!response.ok) {
+                    addLog(`❌ Server error: ${response.status} ${response.statusText}`);
+                    addLog('💡 The backend might still be starting up. Wait 30 seconds and try again.');
+                    return;
+                }
+                
                 const data = await response.json();
                 
+                // FIXED: Show data.message instead of data.error
                 if (data.success) {
                     setStatus(true);
-                    addLog('✅ Bot started successfully!');
+                    addLog(data.message);
                 } else {
-                    addLog('❌ Error: ' + (data.error || 'Unknown error'));
+                    addLog(data.message || '❌ Unknown error occurred');
                 }
             } catch (err) {
-                addLog('⚠️ Backend not ready yet — this is normal for now!');
-                addLog('💡 We will connect this to a real backend in the next step');
-                // Simulate for now
-                setTimeout(() => {
-                    setStatus(true);
-                    addLog('✅ Simulated: Bot would be online now');
-                }, 1500);
+                // Better error messages
+                if (err.message.includes('Failed to fetch')) {
+                    addLog('❌ Cannot reach backend server');
+                    addLog('💡 The server might be starting up. Wait 30 seconds and try again.');
+                } else {
+                    addLog('❌ Error: ' + err.message);
+                }
             }
         }
 
@@ -389,9 +389,13 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             addLog('⏹️ Stopping your bot...');
             
             try {
-                await fetch(`${BACKEND_URL}/api/bot/stop`, { method: 'POST' });
+                const response = await fetch(`${BACKEND_URL}/api/bot/stop`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                addLog(data.message || '✅ Bot stopped');
             } catch (err) {
-                // Backend not ready, that's ok for now
+                addLog('❌ Connection error: ' + err.message);
             }
             
             setStatus(false);
