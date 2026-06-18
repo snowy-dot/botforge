@@ -53,6 +53,7 @@
             padding: 30px;
             margin-bottom: 20px;
             border: 1px solid #2f2f35;
+            position: relative;
         }
 
         .card h2 {
@@ -94,6 +95,12 @@
             margin-bottom: 10px;
         }
 
+        .step strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #5865F2;
+        }
+
         textarea {
             width: 100%;
             background: #0e0e10;
@@ -129,11 +136,17 @@
             font-size: 1rem;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(87, 242, 135, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .btn-stop {
@@ -141,10 +154,15 @@
             color: white;
         }
 
+        .btn-stop:hover:not(:disabled) {
+            box-shadow: 0 5px 15px rgba(237, 66, 69, 0.3);
+        }
+
         .btn-group {
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .status {
@@ -167,12 +185,23 @@
             color: #ED4245;
         }
 
+        .status.starting {
+            background: rgba(254, 231, 92, 0.2);
+            color: #FEE75C;
+        }
+
         .status::before {
             content: '';
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .logs {
@@ -201,15 +230,197 @@
         .help a {
             color: #5865F2;
         }
+
+        /* New: Tip boxes */
+        .tip {
+            background: rgba(88, 101, 242, 0.1);
+            border-left: 4px solid #5865F2;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .tip strong {
+            color: #5865F2;
+        }
+
+        /* New: Warning boxes */
+        .warning {
+            background: rgba(254, 231, 92, 0.1);
+            border-left: 4px solid #FEE75C;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .warning strong {
+            color: #FEE75C;
+        }
+
+        /* New: Security tips */
+        .security-tip {
+            background: rgba(237, 66, 69, 0.1);
+            border-left: 4px solid #ED4245;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .security-tip strong {
+            color: #ED4245;
+        }
+
+        /* New: Countdown timer */
+        .countdown {
+            display: none;
+            background: rgba(254, 231, 92, 0.1);
+            border: 2px solid #FEE75C;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .countdown.active {
+            display: block;
+        }
+
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #FEE75C;
+            margin: 10px 0;
+        }
+
+        .countdown-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #2f2f35;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5865F2, #57F287);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
+        /* New: Feature badges */
+        .badge {
+            display: inline-block;
+            background: #5865F2;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .badge.free {
+            background: #57F287;
+            color: black;
+        }
+
+        .badge.secure {
+            background: #ED4245;
+        }
+
+        /* New: Bot info display */
+        .bot-info {
+            background: #0e0e10;
+            border: 1px solid #2f2f35;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .bot-info.active {
+            display: block;
+        }
+
+        .bot-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #2f2f35;
+        }
+
+        .bot-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .bot-info-label {
+            opacity: 0.7;
+        }
+
+        .bot-info-value {
+            font-weight: bold;
+            color: #57F287;
+        }
+
+        /* New: FAQ section */
+        details {
+            background: #0e0e10;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #2f2f35;
+            cursor: pointer;
+        }
+
+        details summary {
+            font-weight: bold;
+            color: #5865F2;
+            user-select: none;
+        }
+
+        details[open] summary {
+            margin-bottom: 10px;
+        }
+
+        details p {
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="logo">🤖 BotForge</div>
+        <div class="logo">🤖 BotForge <span class="badge free">100% FREE</span></div>
         <a href="#" class="login-btn" id="loginBtn">Login with Discord</a>
     </div>
 
     <div class="container">
+        <!-- Welcome Card -->
+        <div class="card">
+            <h2>👋 Welcome to BotForge!</h2>
+            <p>Host your Discord bot for free. No credit card. No PC required. Runs 24/7.</p>
+            
+            <div class="tip">
+                <strong>💡 Quick Start:</strong> If you're new to Discord bots, check out the FAQ at the bottom of this page first!
+            </div>
+
+            <div class="security-tip">
+                <strong>🔒 Security First:</strong> Your token is encrypted and never stored permanently. We automatically delete old bot files to keep things clean.
+            </div>
+        </div>
+
+        <!-- How To Guide -->
         <div class="card">
             <h2>📝 How to host your bot</h2>
             <p>Follow these 3 simple steps. No technical knowledge needed!</p>
@@ -228,15 +439,24 @@
                 <div class="step">
                     <div class="step-num">3</div>
                     <strong>Click Start</strong>
-                    <p class="help">Your bot will be online 24/7 — no PC needed!</p>
+                    <p class="help">Wait 5-10 seconds and your bot will be online!</p>
                 </div>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> Make sure your bot is <strong>invited to a server</strong> first! Otherwise it will be online but won't respond to anyone.
+                <br><br>
+                <strong>Need to invite your bot?</strong> In the Developer Portal, go to OAuth2 → URL Generator → Check "bot" → Copy the URL at the bottom → Open it in your browser.
             </div>
         </div>
 
+        <!-- Code Editor -->
         <div class="card">
             <h2>💻 Your Bot Code</h2>
-            <p>Paste your Discord bot code here. Don't have one? We've added a starter template below.</p>
+            <p>Paste your Discord bot code here. We've added a starter template you can use.</p>
             <textarea id="botCode" placeholder="Paste your bot code here...">// Simple Discord Bot Example
+// Don't forget to enable "Message Content Intent" in Discord Developer Portal!
+
 const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
@@ -248,23 +468,64 @@ const client = new Client({
 });
 
 client.on('messageCreate', (message) => {
+  // Don't reply to other bots!
+  if (message.author.bot) return;
+
   if (message.content === '!ping') {
     message.reply('Pong! 🏓');
+  }
+
+  if (message.content === '!hello') {
+    message.reply(`Hello ${message.author.username}! 👋`);
   }
 });
 
 client.on('ready', () => {
-  console.log('Bot is online as ' + client.user.tag);
+  console.log('✅ Bot is online as ' + client.user.tag);
+  console.log('📡 Serving ' + client.guilds.cache.size + ' servers');
 });
 
 client.login(process.env.DISCORD_TOKEN);</textarea>
             
-            <h2 style="margin-top: 20px;">🔑 Bot Token</h2>
-            <p>Your token is stored securely and never shared. <strong>Don't share it with anyone!</strong></p>
-            <input type="password" id="botToken" placeholder="Paste your bot token here (e.g., MTIzNDU2Nzg5...)">
-            <p class="help">🔒 Your token is encrypted and only used to run your bot.</p>
+            <div class="tip">
+                <strong>💡 Code Tips:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Make sure your code uses <code>process.env.DISCORD_TOKEN</code> for the token (not hardcoded)</li>
+                    <li>Required intents: <code>Guilds</code>, <code>GuildMessages</code>, <code>MessageContent</code></li>
+                    <li>Enable "Message Content Intent" in Discord Developer Portal → Bot section</li>
+                </ul>
+            </div>
         </div>
 
+        <!-- Token Input -->
+        <div class="card">
+            <h2>🔑 Bot Token <span class="badge secure">ENCRYPTED</span></h2>
+            <p>Paste your bot token below. It's stored securely and never shared with anyone.</p>
+            <input type="password" id="botToken" placeholder="Paste your bot token here (e.g., MTIzNDU2Nzg5...)">
+            
+            <div class="security-tip">
+                <strong>🛡️ Security Tips:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Never share your token with anyone — they can control your bot!</li>
+                    <li>If your token leaks, reset it immediately in Discord Developer Portal</li>
+                    <li>We delete bot files after 1 hour for extra security</li>
+                    <li>Your token is only used to run YOUR bot</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Can't find your token?</strong> 
+                <ol style="margin-left: 20px; margin-top: 8px;">
+                    <li>Go to <a href="https://discord.com/developers/applications" target="_blank">Discord Developer Portal</a></li>
+                    <li>Select your application (or create one)</li>
+                    <li>Click "Bot" in the left sidebar</li>
+                    <li>Click "Reset Token" and copy the new one</li>
+                    <li><strong>Keep this token secret!</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
         <div class="card">
             <h2>🎮 Control Panel</h2>
             <p>Start or stop your bot anytime.</p>
@@ -272,28 +533,167 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             <div style="margin: 15px 0;">
                 Status: <span id="status" class="status offline">Offline</span>
             </div>
+
+            <!-- Countdown Timer (Hidden by default) -->
+            <div class="countdown" id="countdown">
+                <div class="countdown-label">⏱️ Starting your bot...</div>
+                <div class="countdown-number" id="countdownNumber">10</div>
+                <div class="countdown-label">seconds remaining</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- Bot Info (Hidden by default) -->
+            <div class="bot-info" id="botInfo">
+                <div class="bot-info-item">
+                    <span class="bot-info-label">Bot Name:</span>
+                    <span class="bot-info-value" id="botName">-</span>
+                </div>
+                <div class="bot-info-item">
+                    <span class="bot-info-label">Status:</span>
+                    <span class="bot-info-value">🟢 Online & Running</span>
+                </div>
+                <div class="bot-info-item">
+                    <span class="bot-info-label">Uptime:</span>
+                    <span class="bot-info-value" id="uptime">0s</span>
+                </div>
+            </div>
             
             <div class="btn-group">
                 <button class="btn" id="startBtn" onclick="startBot()">▶️ Start Bot</button>
                 <button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>⏹️ Stop Bot</button>
             </div>
+
+            <div class="tip" style="margin-top: 20px;">
+                <strong>⏱️ Why does it take 5-10 seconds?</strong> First-time setup includes installing discord.js (~30s on cold start, 5s on warm). Subsequent starts are nearly instant!
+            </div>
         </div>
 
+        <!-- Live Logs -->
         <div class="card">
             <h2>📊 Live Logs</h2>
-            <p>See what your bot is doing in real-time.</p>
+            <p>See what your bot is doing in real-time. Updated every 3 seconds.</p>
             <div class="logs" id="logs"></div>
+
+            <div class="tip">
+                <strong>💡 Reading Logs:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>🟢 <strong>Green text</strong> = Normal output from your bot</li>
+                    <li>🔴 <strong>Red text</strong> = Errors (something went wrong)</li>
+                    <li>Logs auto-scroll to show the latest messages</li>
+                </ul>
+            </div>
         </div>
 
+        <!-- FAQ -->
         <div class="card">
-            <h2>❓ Need Help?</h2>
-            <p>If something isn't working, try these common fixes:</p>
-            <ul style="margin-left: 20px; line-height: 2; opacity: 0.8;">
-                <li>Make sure your bot token is correct</li>
-                <li>Check that your bot has the right intents enabled</li>
-                <li>Verify your bot was invited to a server</li>
-                <li>Look at the logs above for error messages</li>
-            </ul>
+            <h2>❓ Frequently Asked Questions</h2>
+            <p>Click any question to see the answer:</p>
+
+            <details>
+                <summary>🤔 What if my bot doesn't come online?</summary>
+                <p><strong>Try these fixes:</strong></p>
+                <ol style="margin-left: 20px;">
+                    <li>Check that your token is correct (no extra spaces)</li>
+                    <li>Enable "Message Content Intent" in Discord Developer Portal</li>
+                    <li>Make sure your code uses <code>process.env.DISCORD_TOKEN</code></li>
+                    <li>Check the logs above for error messages</li>
+                    <li>Verify your bot was invited to a server</li>
+                </ol>
+            </details>
+
+            <details>
+                <summary>💸 Is this really free?</summary>
+                <p><strong>Yes, 100% free forever!</strong> We use free hosting tiers from Netlify (website) and Render (backend). There are no hidden costs, no premium plans, and no credit card required.</p>
+            </details>
+
+            <details>
+                <summary>🔒 Is my token safe?</summary>
+                <p><strong>Yes!</strong> Your token is:
+                <ul style="margin-left: 20px;">
+                    <li>Never shared with anyone</li>
+                    <li>Only used to run YOUR bot</li>
+                    <li>Deleted after 1 hour</li>
+                    <li>Never logged or stored permanently</li>
+                </ul>
+                </p>
+            </details>
+
+            <details>
+                <summary>⏱️ Why is the first start slow?</summary>
+                <p>The first time you start a bot, it needs to install discord.js (the library that connects to Discord). This takes 5-10 seconds. After that, subsequent bots start in 3-5 seconds!</p>
+            </details>
+
+            <details>
+                <summary>🚫 Can I get banned for using this?</summary>
+                <p>No! You're using your own bot with your own token. This is the same as running the bot on your own computer, just on our servers. Discord doesn't care where your bot runs, as long as it follows their Terms of Service.</p>
+            </details>
+
+            <details>
+                <summary>🛠️ What if my bot crashes?</summary>
+                <p>Check the Live Logs section for error messages. Common issues:
+                <ul style="margin-left: 20px;">
+                    <li>Syntax errors in your code</li>
+                    <li>Missing dependencies in your code</li>
+                    <li>Wrong intents enabled</li>
+                    <li>Invalid token permissions</li>
+                </ul>
+                Fix the issue and click "Start Bot" again!
+            </details>
+
+            <details>
+                <summary>📊 How many bots can I run?</summary>
+                <p>On the free tier, you can run 1 bot at a time. Stop your current bot before starting a new one. We're working on supporting multiple bots in the future!</p>
+            </details>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="card">
+            <h2>✨ Best Practices & Pro Tips</h2>
+            
+            <div class="tip">
+                <strong>🎯 Before You Start:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Test your bot locally first (on your PC)</li>
+                    <li>Use environment variables for sensitive data</li>
+                    <li>Add error handling to your code</li>
+                    <li>Enable required intents in Discord Developer Portal</li>
+                </ul>
+            </div>
+
+            <div class="security-tip">
+                <strong>🔒 Security Best Practices:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Never commit your token to GitHub</li>
+                    <li>Use environment variables (we handle this for you!)</li>
+                    <li>Reset your token if you think it's compromised</li>
+                    <li>Don't share your code publicly with hardcoded tokens</li>
+                    <li>Add rate limiting to prevent spam in your bot</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Common Mistakes to Avoid:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>❌ Hardcoding the token in your code (use process.env.DISCORD_TOKEN)</li>
+                    <li>❌ Forgetting to enable Message Content Intent</li>
+                    <li>❌ Using <code>client.login("your_token_here")</code> instead of <code>client.login(process.env.DISCORD_TOKEN)</code></li>
+                    <li>❌ Not inviting the bot to a server before testing</li>
+                    <li>❌ Copy-pasting code with extra spaces in the token</li>
+                </ul>
+            </div>
+
+            <div class="tip">
+                <strong>🚀 Pro Tips:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>💾 Save your code locally as a backup</li>
+                    <li>📝 Use comments in your code for clarity</li>
+                    <li>🔄 Test changes on your PC before deploying here</li>
+                    <li>📊 Monitor your bot's performance in Discord</li>
+                    <li>💬 Join Discord.js support server for help: <a href="https://discord.gg/djs" target="_blank">discord.gg/djs</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -302,6 +702,13 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         // CONFIGURATION
         // =====================================================
         const BACKEND_URL = 'https://botforge-4k7j.onrender.com';
+
+        // =====================================================
+        // STATE MANAGEMENT
+        // =====================================================
+        let botStartTime = null;
+        let uptimeInterval = null;
+        let countdownInterval = null;
 
         // =====================================================
         // HELPER FUNCTIONS
@@ -313,16 +720,21 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             logs.scrollTop = logs.scrollHeight;
         }
 
-        function setStatus(online) {
+        function setStatus(state) {
             const status = document.getElementById('status');
             const startBtn = document.getElementById('startBtn');
             const stopBtn = document.getElementById('stopBtn');
             
-            if (online) {
+            if (state === 'online') {
                 status.className = 'status online';
                 status.textContent = 'Online';
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
+            } else if (state === 'starting') {
+                status.className = 'status starting';
+                status.textContent = 'Starting...';
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
             } else {
                 status.className = 'status offline';
                 status.textContent = 'Offline';
@@ -331,12 +743,61 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             }
         }
 
+        function showCountdown(seconds) {
+            const countdown = document.getElementById('countdown');
+            const numberEl = document.getElementById('countdownNumber');
+            const progress = document.getElementById('progressFill');
+            
+            countdown.classList.add('active');
+            let remaining = seconds;
+            
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                numberEl.textContent = remaining;
+                const percent = ((seconds - remaining) / seconds) * 100;
+                progress.style.width = percent + '%';
+                
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    countdown.classList.remove('active');
+                }
+                remaining--;
+            }, 1000);
+        }
+
+        function showBotInfo(botTag) {
+            const botInfo = document.getElementById('botInfo');
+            document.getElementById('botName').textContent = botTag;
+            botInfo.classList.add('active');
+            botStartTime = Date.now();
+            
+            if (uptimeInterval) clearInterval(uptimeInterval);
+            uptimeInterval = setInterval(() => {
+                const seconds = Math.floor((Date.now() - botStartTime) / 1000);
+                let uptime = '';
+                if (seconds < 60) uptime = seconds + 's';
+                else if (seconds < 3600) uptime = Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
+                else uptime = Math.floor(seconds / 3600) + 'h ' + Math.floor((seconds % 3600) / 60) + 'm';
+                document.getElementById('uptime').textContent = uptime;
+            }, 1000);
+        }
+
+        function hideBotInfo() {
+            const botInfo = document.getElementById('botInfo');
+            botInfo.classList.remove('active');
+            if (uptimeInterval) {
+                clearInterval(uptimeInterval);
+                uptimeInterval = null;
+            }
+        }
+
         // =====================================================
         // BOT CONTROL FUNCTIONS
         // =====================================================
         async function startBot() {
-            const code = document.getElementById('botCode').value;
-            const token = document.getElementById('botToken').value;
+            const code = document.getElementById('botCode').value.trim();
+            const token = document.getElementById('botToken').value.trim();
             
             if (!token) {
                 addLog('❌ Please enter your bot token!');
@@ -347,9 +808,17 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 addLog('❌ Please paste your bot code!');
                 return;
             }
+
+            // Pre-flight checks
+            if (!code.includes('process.env.DISCORD_TOKEN') && !code.includes('process.env')) {
+                addLog('⚠️ Warning: Your code should use process.env.DISCORD_TOKEN for the token');
+            }
             
+            setStatus('starting');
             addLog('🚀 Starting your bot...');
-            addLog('🔍 Validating token...');
+            addLog('🔍 Validating token with Discord...');
+            addLog('⏱️ This usually takes 5-10 seconds...');
+            showCountdown(10);
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/bot/start`, {
@@ -358,24 +827,29 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                     body: JSON.stringify({ code, token })
                 });
                 
-                // Check if response is OK
                 if (!response.ok) {
-                    addLog(`❌ Server error: ${response.status} ${response.statusText}`);
-                    addLog('💡 The backend might still be starting up. Wait 30 seconds and try again.');
+                    addLog(`❌ Server error: ${response.status}`);
+                    addLog('💡 The backend might be starting up. Wait 30 seconds and try again.');
+                    setStatus('offline');
                     return;
                 }
                 
                 const data = await response.json();
                 
-                // FIXED: Show data.message instead of data.error
                 if (data.success) {
-                    setStatus(true);
+                    setStatus('online');
+                    showBotInfo(data.botTag);
                     addLog(data.message);
+                    addLog('💡 Tip: Check your Discord server to see if the bot is online!');
                 } else {
+                    setStatus('offline');
                     addLog(data.message || '❌ Unknown error occurred');
+                    if (data.message && data.message.includes('invalid')) {
+                        addLog('💡 Tip: Double-check your token in the Discord Developer Portal');
+                    }
                 }
             } catch (err) {
-                // Better error messages
+                setStatus('offline');
                 if (err.message.includes('Failed to fetch')) {
                     addLog('❌ Cannot reach backend server');
                     addLog('💡 The server might be starting up. Wait 30 seconds and try again.');
@@ -398,9 +872,15 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 addLog('❌ Connection error: ' + err.message);
             }
             
-            setStatus(false);
-            addLog('✅ Bot stopped');
+            setStatus('offline');
+            hideBotInfo();
+            addLog('✅ Bot stopped successfully');
+            addLog('💡 You can now start a new bot or edit your code');
         }
+
+        // Welcome message
+        addLog('👋 Welcome to BotForge!');
+        addLog('💡 Paste your bot code and token, then click Start');
     </script>
 </body>
 </html>
