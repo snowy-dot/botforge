@@ -169,3 +169,19 @@ app.listen(PORT, () => {
   console.log(`✅ BotForge server running on port ${PORT}`);
   console.log(`🌐 Visit http://localhost:${PORT}`);
 });
+
+// =====================================================
+// ENDPOINT 6: Simple Test (No Token Validation)
+// URL: POST /api/test-simple
+// Purpose: Test if frontend can reach backend
+// =====================================================
+app.post("/api/test-simple", (req, res) => {
+  console.log("🧪 Test endpoint hit!");
+  console.log("   Received:", req.body);
+  
+  res.json({ 
+    success: true,
+    message: "✅ Backend is reachable!",
+    receivedData: req.body
+  });
+});
