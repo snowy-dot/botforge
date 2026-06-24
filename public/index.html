@@ -3,20 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotForge — Host Bots & Websites for Free</title>
+    <title>BotForge — Personal Bot & Website Hosting</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        :root {
+            --bg-primary: #0e0e10;
+            --bg-secondary: #1f1f23;
+            --bg-tertiary: #0a0a0c;
+            --border: #2f2f35;
+            --text-primary: white;
+            --text-secondary: rgba(255,255,255,0.7);
+            --accent: #5865F2;
+            --success: #57F287;
+            --danger: #ED4245;
+            --warning: #FEE75C;
+            --purple: #9146FF;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0e0e10;
-            color: white;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
+            line-height: 1.5;
         }
 
         .header {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto 30px;
             display: flex;
             justify-content: space-between;
@@ -28,7 +43,7 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #5865F2;
+            color: var(--accent);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -44,15 +59,50 @@
             50% { transform: translateY(-5px); }
         }
 
-        .container { max-width: 900px; margin: 0 auto; }
+        .header-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
 
         .card {
-            background: #1f1f23;
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 30px;
             margin-bottom: 20px;
-            border: 1px solid #2f2f35;
+            border: 1px solid var(--border);
             animation: slideUp 0.5s ease-out;
+            transition: border 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(88, 101, 242, 0.3);
         }
 
         @keyframes slideUp {
@@ -62,7 +112,7 @@
 
         .card h2 {
             margin-bottom: 10px;
-            color: #5865F2;
+            color: var(--accent);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -70,29 +120,61 @@
 
         .card p { opacity: 0.7; margin-bottom: 20px; }
 
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
         textarea, input[type="password"], input[type="text"] {
             width: 100%;
-            background: #0a0a0c;
-            color: white;
-            border: 1px solid #2f2f35;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
             padding: 15px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            transition: border 0.2s;
+            transition: all 0.2s;
         }
 
         textarea { min-height: 250px; resize: vertical; }
 
         textarea:focus, input:focus {
             outline: none;
-            border-color: #5865F2;
+            border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
         }
 
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: var(--accent);
+            background: rgba(88, 101, 242, 0.1);
+        }
+
         .file-upload {
-            background: #0a0a0c;
-            border: 2px dashed #2f2f35;
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
             border-radius: 8px;
             padding: 30px;
             text-align: center;
@@ -102,12 +184,12 @@
         }
 
         .file-upload:hover {
-            border-color: #5865F2;
+            border-color: var(--accent);
             background: rgba(88, 101, 242, 0.05);
         }
 
         .file-upload.dragover {
-            border-color: #57F287;
+            border-color: var(--success);
             background: rgba(87, 242, 135, 0.1);
         }
 
@@ -118,13 +200,13 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #57F287;
+            background: var(--success);
             color: black;
-            padding: 15px 30px;
+            padding: 12px 24px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.95rem;
             border: none;
             cursor: pointer;
             transition: all 0.2s;
@@ -138,7 +220,7 @@
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .btn-purple {
-            background: #9146FF;
+            background: var(--purple);
             color: white;
         }
 
@@ -146,8 +228,8 @@
             box-shadow: 0 5px 15px rgba(145, 70, 255, 0.3);
         }
 
-        .btn-stop { background: #ED4245; color: white; }
-        .btn-secondary { background: #0a0a0c; color: white; border: 1px solid #2f2f35; }
+        .btn-stop { background: var(--danger); color: white; }
+        .btn-secondary { background: var(--bg-tertiary); color: white; border: 1px solid var(--border); }
         .btn-small { padding: 8px 15px; font-size: 0.85rem; }
 
         .btn-group {
@@ -167,9 +249,10 @@
             font-size: 0.9rem;
         }
 
-        .status.online { background: rgba(87, 242, 135, 0.2); color: #57F287; }
-        .status.offline { background: rgba(237, 66, 69, 0.2); color: #ED4245; }
-        .status.live { background: rgba(87, 242, 135, 0.2); color: #57F287; }
+        .status.online { background: rgba(87, 242, 135, 0.2); color: var(--success); }
+        .status.offline { background: rgba(237, 66, 69, 0.2); color: var(--danger); }
+        .status.live { background: rgba(87, 242, 135, 0.2); color: var(--success); }
+        .status.starting { background: rgba(254, 231, 92, 0.2); color: var(--warning); }
 
         .status::before {
             content: '';
@@ -180,53 +263,98 @@
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .logs-container {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logs-header h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .logs-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
         }
 
         .logs {
-            background: #0a0a0c;
-            border-radius: 8px;
+            background: var(--bg-tertiary);
             padding: 15px;
             font-family: 'Courier New', monospace;
             font-size: 0.85rem;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             white-space: pre-wrap;
-            color: #57F287;
+            color: var(--success);
         }
 
         .logs:empty::before {
             content: 'No logs yet...';
             color: #666;
+            font-style: italic;
         }
+
+        .log-entry { 
+            margin-bottom: 2px; 
+            padding: 2px 0;
+        }
+        .log-entry.error { color: var(--danger); }
+        .log-entry.warn { color: var(--warning); }
+        .log-entry.info { color: var(--accent); }
+        .log-entry.success { color: var(--success); }
 
         .tip {
             background: rgba(88, 101, 242, 0.1);
-            border-left: 4px solid #5865F2;
+            border-left: 4px solid var(--accent);
             padding: 15px;
             margin: 15px 0;
             border-radius: 4px;
             font-size: 0.9rem;
         }
 
-        .tip strong { color: #5865F2; }
+        .tip strong { color: var(--accent); }
 
         .success-msg {
             background: rgba(87, 242, 135, 0.1);
-            border-left: 4px solid #57F287;
+            border-left: 4px solid var(--success);
             padding: 15px;
             margin: 15px 0;
             border-radius: 4px;
             font-size: 0.9rem;
         }
 
-        .success-msg strong { color: #57F287; }
+        .success-msg strong { color: var(--success); }
 
         .preview-link {
-            background: #0a0a0c;
-            border: 2px solid #57F287;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--success);
             border-radius: 8px;
             padding: 15px;
             margin: 15px 0;
@@ -235,14 +363,18 @@
         }
 
         .preview-link a {
-            color: #57F287;
+            color: var(--success);
             text-decoration: none;
             font-weight: bold;
         }
 
+        .preview-link a:hover {
+            text-decoration: underline;
+        }
+
         .badge {
             display: inline-block;
-            background: #5865F2;
+            background: var(--accent);
             color: white;
             padding: 3px 10px;
             border-radius: 12px;
@@ -251,36 +383,215 @@
             margin-left: 8px;
         }
 
-        .badge.free { background: #57F287; color: black; }
-        .badge.new { background: #9146FF; color: white; }
+        .badge.free { background: var(--success); color: black; }
+        .badge.new { background: var(--purple); color: white; }
+        .badge.live { background: var(--success); color: black; }
+
+        /* 🆕 DEPLOYMENT CARDS */
+        .deployment-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            transition: all 0.2s;
+        }
+
+        .deployment-card:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .deployment-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .deployment-info strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .deployment-info small {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .deployment-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* 🆕 TABS */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 🆕 TOAST NOTIFICATIONS */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 350px;
+            animation: slideIn 0.3s;
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        /* 🆕 SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .card { padding: 20px; }
+            .header { flex-direction: column; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo">
             <span class="logo-icon">🤖</span>
-            <span>BotForge <span class="badge free">FREE</span></span>
+            <span>BotForge <span class="badge free">PERSONAL</span></span>
+        </div>
+        <div class="header-stats">
+            <div class="stat-badge">
+                <span class="dot"></span>
+                <span id="serverStatus">Online</span>
+            </div>
         </div>
     </div>
 
     <div class="container">
-        <!-- Welcome -->
+        <!-- 🆕 MY DEPLOYMENTS -->
         <div class="card">
-            <h2>👋 Welcome to BotForge!</h2>
-            <p>Host Discord bots AND websites for free. No credit card. Runs 24/7.</p>
-            <div class="success-msg">
-                <strong>🎉 NEW: Website Hosting!</strong> You can now host static websites too! Upload HTML files and get a live preview URL.
+            <h2>📦 My Deployments</h2>
+            <p>Track all your active bots and websites in one place.</p>
+            
+            <div class="tabs">
+                <button class="tab active" data-tab="active">Active</button>
+                <button class="tab" data-tab="history">History</button>
+            </div>
+
+            <div class="tab-content active" id="tab-active">
+                <div id="activeDeployments">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>No active deployments yet. Start a bot or deploy a website below!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-history">
+                <div id="deploymentHistory">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📜</div>
+                        <p>No deployment history yet.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Discord Bot Hosting -->
         <div class="card">
             <h2>🤖 Discord Bot Hosting</h2>
-            <p>Keep your Discord bot online 24/7 in the cloud.</p>
+            <p>Keep your Discord bot online in a secure sandbox.</p>
             
-            <h3 style="color:#5865F2; margin: 15px 0 10px;">💻 Bot Code</h3>
-            <textarea id="botCode" placeholder="Paste your Discord bot code...">// Welcome to BotForge!
-// Your bot will stay online 24/7 here!
+            <div class="input-group">
+                <label>💻 Bot Code</label>
+                <textarea id="botCode" placeholder="Paste your Discord bot code...">// Welcome to BotForge!
+// Your bot will stay online here!
 
 const { Client, GatewayIntentBits } = require('discord.js');
 
@@ -304,42 +615,61 @@ client.on('ready', () => {
 });
 
 client.login(process.env.DISCORD_TOKEN);</textarea>
+            </div>
 
-            <h3 style="color:#5865F2; margin: 20px 0 10px;">🔑 Bot Token</h3>
-            <input type="password" id="botToken" placeholder="Paste your Discord bot token">
+            <div class="input-group">
+                <label>🔑 Bot Token</label>
+                <input type="password" id="botToken" placeholder="Paste your Discord bot token">
+                <button class="toggle-password" onclick="togglePassword()">👁️</button>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap;">
+                <button class="btn btn-small btn-secondary" onclick="validateToken()">✓ Validate Token</button>
+                <button class="btn btn-small btn-secondary" onclick="saveBotCode()">💾 Save Code</button>
+                <button class="btn btn-small btn-secondary" onclick="loadBotCode()">📂 Load Saved</button>
+            </div>
 
             <div class="tip">
-                <strong>💡 Tip:</strong> Use process.env.DISCORD_TOKEN in your code. Enable "Message Content Intent" in Discord Developer Portal.
+                <strong>💡 Tips:</strong>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>Your code is <strong>auto-saved</strong> as you type</li>
+                    <li>Token is stored locally in your browser only</li>
+                    <li>Bots auto-kill after 1 hour to save resources</li>
+                    <li>Use <code>process.env.DISCORD_TOKEN</code> in your code</li>
+                </ul>
             </div>
 
             <div class="btn-group">
                 <button class="btn" id="startBotBtn" onclick="startBot()">▶️ Start Bot</button>
                 <button class="btn btn-stop" id="stopBotBtn" onclick="stopBot()" disabled>⏹️ Stop Bot</button>
+                <button class="btn btn-secondary" id="restartBotBtn" onclick="restartBot()" disabled>🔄 Restart</button>
             </div>
 
             <div style="margin-top: 15px;">
                 Status: <span id="botStatus" class="status offline">Offline</span>
+                <span id="botUptime" style="margin-left: 15px; color: var(--text-secondary); font-size: 0.85rem;"></span>
             </div>
         </div>
 
-        <!-- Website Hosting (NEW!) -->
+        <!-- Website Hosting -->
         <div class="card">
-            <h2>🌐 Website Hosting <span class="badge new">NEW</span></h2>
+            <h2>🌐 Website Hosting</h2>
             <p>Upload HTML/CSS/JS files and get a live preview URL instantly!</p>
 
             <div class="file-upload" id="fileUpload">
                 <div class="file-upload-icon">📁</div>
                 <strong>Click to upload</strong> or drag & drop
                 <p style="margin-top: 5px; font-size: 0.85rem; opacity: 0.6;">
-                    HTML, CSS, JS files (max 5MB each)
+                    HTML, CSS, JS, images (max 5MB each, up to 20 files)
                 </p>
-                <input type="file" id="fileInput" accept=".html,.css,.js,.png,.jpg,.svg,.txt" multiple>
+                <input type="file" id="fileInput" accept=".html,.css,.js,.png,.jpg,.svg,.txt,.json,.ico" multiple>
             </div>
 
             <div id="fileList" style="margin: 10px 0;"></div>
 
             <div class="btn-group">
                 <button class="btn btn-purple" onclick="uploadWebsite()">🚀 Deploy Website</button>
+                <button class="btn btn-secondary btn-small" onclick="clearFiles()">🗑️ Clear Selection</button>
             </div>
 
             <div id="previewSection" style="display:none;">
@@ -349,17 +679,13 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 <div class="preview-link">
                     <strong>Preview URL:</strong><br>
                     <a id="previewLink" href="" target="_blank"></a>
+                    <button class="icon-btn" onclick="copyPreviewLink()" style="margin-top: 8px;">📋 Copy URL</button>
                 </div>
             </div>
 
             <div class="tip">
-                <strong>💡 How it works:</strong>
-                <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Upload your <code>index.html</code> file (and any CSS/JS/images)</li>
-                    <li>Click "Deploy Website"</li>
-                    <li>Get a preview URL instantly!</li>
-                    <li>Share the URL with anyone!</li>
-                </ul>
+                <strong>💾 Your User ID:</strong> <code id="userIdDisplay">-</code>
+                <p style="margin-top: 5px; font-size: 0.85rem; opacity: 0.7;">This is auto-generated and saved locally. All your deployments use this ID.</p>
             </div>
         </div>
 
@@ -367,43 +693,207 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         <div class="card">
             <h2>📊 Live Logs</h2>
             <p>See what's happening with your bots and websites.</p>
-            <div class="logs" id="logs"></div>
-        </div>
-
-        <!-- Quick Test -->
-        <div class="card">
-            <h2>🧪 Quick Test Website</h2>
-            <p>Want to test? Create a simple HTML file and upload it!</p>
-            <div class="tip">
-                <strong>Create a file called <code>test.html</code> with this:</strong>
-                <pre style="background:#000; padding:15px; border-radius:8px; margin-top:10px; overflow-x:auto;"><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;&lt;title&gt;My First Website!&lt;/title&gt;&lt;/head&gt;
-&lt;body style="background:#5865F2;color:white;text-align:center;padding:50px;font-family:sans-serif;"&gt;
-  &lt;h1&gt;🎉 Hello from BotForge!&lt;/h1&gt;
-  &lt;p&gt;My website is hosted for FREE!&lt;/p&gt;
-  &lt;p&gt;Powered by: BotForge&lt;/p&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
+            <div class="logs-container">
+                <div class="logs-header">
+                    <h3>Activity Log</h3>
+                    <div class="logs-actions">
+                        <button class="icon-btn" onclick="exportLogs()">💾 Export</button>
+                        <button class="icon-btn" onclick="clearLogs()">🗑️ Clear</button>
+                    </div>
+                </div>
+                <div class="logs" id="logs"></div>
             </div>
         </div>
     </div>
 
     <script>
         // =====================================================
-        // CONFIGURATION
+        // CONFIGURATION & STATE
         // =====================================================
         const BACKEND_URL = 'https://botforge-4k7j.onrender.com';
+        const STORAGE_KEYS = {
+            botCode: 'botforge_bot_code',
+            botToken: 'botforge_bot_token',
+            userId: 'botforge_user_id',
+            deployments: 'botforge_deployments',
+            botRunning: 'botforge_bot_running'
+        };
+
         let uploadedFiles = [];
+        let currentBotData = null;
+        let logPollingInterval = null;
+        let uptimeInterval = null;
+
+        // =====================================================
+        // INITIALIZATION
+        // =====================================================
+        function init() {
+            // Generate or load user ID
+            let userId = localStorage.getItem(STORAGE_KEYS.userId);
+            if (!userId) {
+                userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem(STORAGE_KEYS.userId, userId);
+            }
+            document.getElementById('userIdDisplay').textContent = userId;
+
+            // Load saved code & token
+            const savedCode = localStorage.getItem(STORAGE_KEYS.botCode);
+            if (savedCode) {
+                document.getElementById('botCode').value = savedCode;
+                addLog('💾 Loaded saved bot code', 'info');
+            }
+
+            const savedToken = localStorage.getItem(STORAGE_KEYS.botToken);
+            if (savedToken) {
+                document.getElementById('botToken').value = savedToken;
+                addLog('🔑 Loaded saved token', 'info');
+            }
+
+            // Auto-save code as user types
+            document.getElementById('botCode').addEventListener('input', (e) => {
+                localStorage.setItem(STORAGE_KEYS.botCode, e.target.value);
+            });
+
+            // Setup tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`tab-${targetTab}`).classList.add('active');
+                });
+            });
+
+            // Load deployments
+            loadDeployments();
+            refreshDeployments();
+
+            // Welcome logs
+            addLog('👋 Welcome to BotForge v9.0!', 'success');
+            addLog('🤖 Discord bot hosting: READY', 'info');
+            addLog('🌐 Website hosting: READY', 'info');
+            addLog(`🆔 Your User ID: ${userId}`, 'info');
+
+            // Check server status
+            checkServerStatus();
+
+            // Restore bot state if was running
+            const wasRunning = localStorage.getItem(STORAGE_KEYS.botRunning);
+            if (wasRunning) {
+                addLog('🔄 Checking if your bot is still running...', 'info');
+                checkBotStatus();
+            }
+        }
 
         // =====================================================
         // HELPER FUNCTIONS
         // =====================================================
-        function addLog(message) {
+        function addLog(message, type = 'success') {
             const logs = document.getElementById('logs');
             const time = new Date().toLocaleTimeString();
-            logs.textContent += `[${time}] ${message}\n`;
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            logs.appendChild(entry);
             logs.scrollTop = logs.scrollHeight;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function clearLogs() {
+            if (confirm('Clear all logs?')) {
+                document.getElementById('logs').innerHTML = '';
+                addLog('🗑️ Logs cleared', 'info');
+            }
+        }
+
+        function exportLogs() {
+            const logs = document.getElementById('logs').textContent;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `botforge-logs-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            addLog('💾 Logs exported', 'success');
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('botToken');
+            const btn = event.target;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        function formatUptime(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            if (hours > 0) return `${hours}h ${minutes % 60}m`;
+            if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+            return `${seconds}s`;
+        }
+
+        // =====================================================
+        // SERVER STATUS
+        // =====================================================
+        async function checkServerStatus() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/health`);
+                const data = await res.json();
+                document.getElementById('serverStatus').textContent = 
+                    `Online • ${data.activeBots} bot${data.activeBots !== 1 ? 's' : ''} running`;
+            } catch (err) {
+                document.getElementById('serverStatus').textContent = 'Offline';
+                addLog('⚠️ Backend server unreachable', 'error');
+            }
+        }
+
+        // =====================================================
+        // TOKEN VALIDATION
+        // =====================================================
+        async function validateToken() {
+            const token = document.getElementById('botToken').value.trim();
+            if (!token) {
+                showToast('Please enter a token first!', 'error');
+                return;
+            }
+
+            addLog('🔍 Validating token...', 'info');
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/validate-token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const data = await res.json();
+                if (data.valid) {
+                    addLog(`✅ Token valid! Bot: ${data.bot.tag}`, 'success');
+                    showToast(`Valid! Logged in as ${data.bot.tag}`, 'success');
+                } else {
+                    addLog(data.message, 'error');
+                    showToast(data.message, 'error');
+                }
+            } catch (err) {
+                addLog(`❌ Error: ${err.message}`, 'error');
+                showToast('Validation failed', 'error');
+            }
         }
 
         // =====================================================
@@ -443,14 +933,23 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
             }
 
             let html = '<strong>📄 Selected Files:</strong><ul style="margin-left: 20px; margin-top: 5px;">';
+            let totalSize = 0;
             uploadedFiles.forEach(file => {
                 const size = (file.size / 1024).toFixed(1);
+                totalSize += file.size;
                 html += `<li>${file.name} <span style="opacity:0.6;">(${size} KB)</span></li>`;
             });
-            html += '</ul>';
+            html += `</ul><p style="margin-top: 8px; font-size: 0.85rem; opacity: 0.7;">Total: ${(totalSize / 1024).toFixed(1)} KB</p>`;
             fileList.innerHTML = html;
 
-            addLog(`📁 Selected ${uploadedFiles.length} file(s) for upload`);
+            addLog(`📁 Selected ${uploadedFiles.length} file(s) (${(totalSize / 1024).toFixed(1)} KB)`, 'info');
+        }
+
+        function clearFiles() {
+            uploadedFiles = [];
+            fileInput.value = '';
+            fileList.innerHTML = '';
+            addLog('🗑️ File selection cleared', 'info');
         }
 
         // =====================================================
@@ -458,14 +957,16 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         // =====================================================
         async function uploadWebsite() {
             if (uploadedFiles.length === 0) {
-                addLog('❌ Please select files first!');
+                showToast('Please select files first!', 'error');
                 return;
             }
 
-            addLog('🚀 Deploying website...');
+            addLog('🚀 Deploying website...', 'info');
+            showToast('Deploying...', 'info');
 
+            const userId = localStorage.getItem(STORAGE_KEYS.userId);
             const formData = new FormData();
-            formData.append('userId', 'guest-' + Date.now());
+            formData.append('userId', userId);
             
             uploadedFiles.forEach(file => {
                 formData.append('files', file);
@@ -480,10 +981,9 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                 const data = await response.json();
 
                 if (data.success) {
-                    addLog(data.message);
-                    addLog(`📁 Files: ${data.files.join(', ')}`);
+                    addLog(data.message, 'success');
+                    addLog(`📁 Files: ${data.files.join(', ')}`, 'info');
                     
-                    // Show preview link
                     const previewSection = document.getElementById('previewSection');
                     const previewLink = document.getElementById('previewLink');
                     const fullUrl = BACKEND_URL + data.previewUrl;
@@ -492,13 +992,121 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
                     previewLink.textContent = fullUrl;
                     previewSection.style.display = 'block';
                     
-                    addLog(`🌐 Preview URL: ${fullUrl}`);
+                    addLog(`🌐 Preview URL: ${fullUrl}`, 'success');
+                    showToast('Website deployed!', 'success');
+
+                    // Save deployment
+                    saveDeployment({
+                        type: 'website',
+                        url: fullUrl,
+                        files: data.files,
+                        timestamp: Date.now()
+                    });
                 } else {
-                    addLog(data.message || '❌ Upload failed!');
+                    addLog(data.message || '❌ Upload failed!', 'error');
+                    showToast(data.message, 'error');
                 }
             } catch (err) {
-                addLog('❌ Error: ' + err.message);
-                addLog('💡 Make sure backend is deployed and accessible');
+                addLog(`❌ Error: ${err.message}`, 'error');
+                showToast('Upload failed - check backend', 'error');
+            }
+        }
+
+        function copyPreviewLink() {
+            const link = document.getElementById('previewLink').textContent;
+            navigator.clipboard.writeText(link);
+            showToast('URL copied to clipboard!', 'success');
+        }
+
+        // =====================================================
+        // DEPLOYMENT TRACKING
+        // =====================================================
+        function saveDeployment(deployment) {
+            const deployments = JSON.parse(localStorage.getItem(STORAGE_KEYS.deployments) || '[]');
+            deployments.unshift(deployment);
+            // Keep last 50
+            if (deployments.length > 50) deployments.pop();
+            localStorage.setItem(STORAGE_KEYS.deployments, JSON.stringify(deployments));
+            loadDeployments();
+        }
+
+        function loadDeployments() {
+            const deployments = JSON.parse(localStorage.getItem(STORAGE_KEYS.deployments) || '[]');
+            const activeDiv = document.getElementById('activeDeployments');
+            const historyDiv = document.getElementById('deploymentHistory');
+
+            if (deployments.length === 0) {
+                activeDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No deployments yet.</p></div>';
+                historyDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📜</div><p>No history yet.</p></div>';
+                return;
+            }
+
+            const active = deployments.filter(d => d.status !== 'stopped' && d.status !== 'deleted');
+            const history = deployments;
+
+            if (active.length === 0) {
+                activeDiv.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No active deployments.</p></div>';
+            } else {
+                activeDiv.innerHTML = active.map(d => renderDeployment(d)).join('');
+            }
+
+            historyDiv.innerHTML = history.map(d => renderDeployment(d)).join('');
+        }
+
+        function renderDeployment(d) {
+            const date = new Date(d.timestamp).toLocaleString();
+            const icon = d.type === 'bot' ? '🤖' : '🌐';
+            const typeLabel = d.type === 'bot' ? d.botTag : 'Website';
+            
+            let actions = '';
+            if (d.type === 'bot') {
+                actions = `<button class="btn btn-small btn-stop" onclick="stopBotFromList('${d.id}')">Stop</button>`;
+            } else if (d.type === 'website' && d.url) {
+                actions = `<a href="${d.url}" target="_blank" class="btn btn-small btn-purple">Visit</a>
+                           <button class="btn btn-small btn-stop" onclick="deleteWebsite('${d.id}')">Delete</button>`;
+            }
+
+            return `
+                <div class="deployment-card">
+                    <div class="deployment-info">
+                        <strong>${icon} ${typeLabel}</strong>
+                        <small>${date}</small>
+                        ${d.url ? `<br><small style="color: var(--accent);">${d.url}</small>` : ''}
+                    </div>
+                    <div class="deployment-actions">${actions}</div>
+                </div>
+            `;
+        }
+
+        function refreshDeployments() {
+            loadDeployments();
+        }
+
+        async function stopBotFromList(id) {
+            if (!confirm('Stop this bot?')) return;
+            await stopBot();
+        }
+
+        async function deleteWebsite(id) {
+            if (!confirm('Delete this website?')) return;
+            const userId = localStorage.getItem(STORAGE_KEYS.userId);
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/website/${userId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    addLog('🗑️ Website deleted', 'success');
+                    showToast('Website deleted', 'success');
+                    // Mark as deleted in localStorage
+                    const deployments = JSON.parse(localStorage.getItem(STORAGE_KEYS.deployments) || '[]');
+                    const updated = deployments.map(d => {
+                        if (d.id === id) d.status = 'deleted';
+                        return d;
+                    });
+                    localStorage.setItem(STORAGE_KEYS.deployments, JSON.stringify(updated));
+                    loadDeployments();
+                }
+            } catch (err) {
+                addLog(`❌ Delete failed: ${err.message}`, 'error');
             }
         }
 
@@ -508,58 +1116,207 @@ client.login(process.env.DISCORD_TOKEN);</textarea>
         async function startBot() {
             const code = document.getElementById('botCode').value.trim();
             const token = document.getElementById('botToken').value.trim();
+            const userId = localStorage.getItem(STORAGE_KEYS.userId);
             
-            if (!token) { addLog('❌ Please enter your bot token!'); return; }
-            if (!code) { addLog('❌ Please paste your bot code!'); return; }
+            if (!token) { addLog('❌ Please enter your bot token!', 'error'); return; }
+            if (!code) { addLog('❌ Please paste your bot code!', 'error'); return; }
 
-            addLog('🚀 Starting Discord bot...');
-            document.getElementById('botStatus').className = 'status offline';
+            // Save token locally
+            localStorage.setItem(STORAGE_KEYS.botToken, token);
+
+            addLog('🚀 Starting Discord bot...', 'info');
+            document.getElementById('botStatus').className = 'status starting';
             document.getElementById('botStatus').textContent = 'Starting...';
             
             try {
                 const response = await fetch(`${BACKEND_URL}/api/bot/start`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-User-Id': userId
+                    },
                     body: JSON.stringify({ code, token })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    addLog(data.message);
+                    addLog(data.message, 'success');
                     document.getElementById('botStatus').className = 'status live';
                     document.getElementById('botStatus').textContent = 'Online';
                     document.getElementById('startBotBtn').disabled = true;
                     document.getElementById('stopBotBtn').disabled = false;
+                    document.getElementById('restartBotBtn').disabled = false;
+                    
+                    currentBotData = {
+                        userId,
+                        botTag: data.botTag,
+                        startTime: Date.now()
+                    };
+
+                    localStorage.setItem(STORAGE_KEYS.botRunning, 'true');
+                    startLogPolling();
+                    startUptimeCounter();
+                    showToast(`Bot ${data.botTag} is online!`, 'success');
+
+                    // Save deployment
+                    saveDeployment({
+                        id: 'bot-' + Date.now(),
+                        type: 'bot',
+                        botTag: data.botTag,
+                        userId,
+                        timestamp: Date.now(),
+                        status: 'running'
+                    });
                 } else {
-                    addLog(data.message || '❌ Failed to start bot');
+                    addLog(data.message || '❌ Failed to start bot', 'error');
                     document.getElementById('botStatus').className = 'status offline';
                     document.getElementById('botStatus').textContent = 'Offline';
+                    showToast(data.message, 'error');
                 }
             } catch (err) {
-                addLog('❌ Error: ' + err.message);
+                addLog(`❌ Error: ${err.message}`, 'error');
+                showToast('Start failed', 'error');
             }
         }
 
         async function stopBot() {
-            addLog('⏹️ Stopping bot...');
+            const userId = localStorage.getItem(STORAGE_KEYS.userId);
+            addLog('⏹️ Stopping bot...', 'warn');
+            
             try {
-                await fetch(`${BACKEND_URL}/api/bot/stop`, { method: 'POST' });
-                addLog('✅ Bot stopped');
+                const response = await fetch(`${BACKEND_URL}/api/bot/stop`, {
+                    method: 'POST',
+                    headers: { 'X-User-Id': userId }
+                });
+                const data = await response.json();
+                addLog(data.message || '✅ Bot stopped', 'success');
+                showToast('Bot stopped', 'success');
             } catch (err) {
-                addLog('❌ Error: ' + err.message);
+                addLog(`❌ Error: ${err.message}`, 'error');
             }
+
             document.getElementById('botStatus').className = 'status offline';
             document.getElementById('botStatus').textContent = 'Offline';
             document.getElementById('startBotBtn').disabled = false;
             document.getElementById('stopBotBtn').disabled = true;
+            document.getElementById('restartBotBtn').disabled = true;
+            document.getElementById('botUptime').textContent = '';
+            
+            localStorage.removeItem(STORAGE_KEYS.botRunning);
+            stopLogPolling();
+            stopUptimeCounter();
+            currentBotData = null;
         }
 
-        // Welcome
-        addLog('👋 Welcome to BotForge!');
-        addLog('🤖 Discord bot hosting: ACTIVE');
-        addLog('🌐 Website hosting: ACTIVE');
-        addLog('💡 Upload HTML files to deploy your website!');
+        async function restartBot() {
+            addLog('🔄 Restarting bot...', 'info');
+            await stopBot();
+            setTimeout(() => startBot(), 1000);
+        }
+
+        async function checkBotStatus() {
+            const userId = localStorage.getItem(STORAGE_KEYS.userId);
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/bot/logs/${userId}`);
+                const data = await res.json();
+                if (data.running) {
+                    addLog(`✅ Bot ${data.botTag} is still running!`, 'success');
+                    document.getElementById('botStatus').className = 'status live';
+                    document.getElementById('botStatus').textContent = 'Online';
+                    document.getElementById('startBotBtn').disabled = true;
+                    document.getElementById('stopBotBtn').disabled = false;
+                    document.getElementById('restartBotBtn').disabled = false;
+                    currentBotData = {
+                        userId,
+                        botTag: data.botTag,
+                        startTime: Date.now() - data.uptime
+                    };
+                    startLogPolling();
+                    startUptimeCounter();
+                } else {
+                    addLog('ℹ️ No bot currently running', 'info');
+                    localStorage.removeItem(STORAGE_KEYS.botRunning);
+                }
+            } catch (err) {
+                addLog('⚠️ Could not check bot status', 'error');
+            }
+        }
+
+        function startLogPolling() {
+            if (logPollingInterval) return;
+            const userId = localStorage.getItem(STORAGE_KEYS.userId);
+            logPollingInterval = setInterval(async () => {
+                if (!currentBotData) return;
+                try {
+                    const res = await fetch(`${BACKEND_URL}/api/bot/logs/${userId}`);
+                    const data = await res.json();
+                    if (data.logs && data.logs.length > 0) {
+                        // Could display bot logs in a separate section
+                        // For now, just add a periodic status
+                    }
+                } catch (err) {
+                    // Silently fail
+                }
+            }, 5000);
+        }
+
+        function stopLogPolling() {
+            if (logPollingInterval) {
+                clearInterval(logPollingInterval);
+                logPollingInterval = null;
+            }
+        }
+
+        function startUptimeCounter() {
+            if (uptimeInterval) return;
+            uptimeInterval = setInterval(() => {
+                if (currentBotData) {
+                    const uptime = Date.now() - currentBotData.startTime;
+                    document.getElementById('botUptime').textContent = `Uptime: ${formatUptime(uptime)}`;
+                }
+            }, 1000);
+        }
+
+        function stopUptimeCounter() {
+            if (uptimeInterval) {
+                clearInterval(uptimeInterval);
+                uptimeInterval = null;
+            }
+        }
+
+        // =====================================================
+        // CODE SAVE/LOAD
+        // =====================================================
+        function saveBotCode() {
+            const code = document.getElementById('botCode').value;
+            localStorage.setItem(STORAGE_KEYS.botCode, code);
+            showToast('Code saved!', 'success');
+            addLog('💾 Bot code saved', 'success');
+        }
+
+        function loadBotCode() {
+            const saved = localStorage.getItem(STORAGE_KEYS.botCode);
+            if (saved) {
+                document.getElementById('botCode').value = saved;
+                showToast('Code loaded!', 'success');
+                addLog('📂 Saved code loaded', 'info');
+            } else {
+                showToast('No saved code found', 'warning');
+            }
+        }
+
+        // =====================================================
+        // KEEP-ALIVE PING (every 5 minutes)
+        // =====================================================
+        setInterval(() => {
+            fetch(`${BACKEND_URL}/ping`).catch(() => {});
+        }, 5 * 60 * 1000);
+
+        // =====================================================
+        // START
+        // =====================================================
+        init();
     </script>
 </body>
 </html>
