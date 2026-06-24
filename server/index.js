@@ -1,5 +1,5 @@
 // =====================================================
-// BotForge Backend - Version 10.0 (Process-Based)
+// BotForge Backend - Version 10.0.1 (Debug Edition)
 // Discord Bot Hosting + Website Hosting
 // =====================================================
 
@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 
 const DATA_DIR = path.join(__dirname, "data");
 const WEBSITES_DIR = path.join(__dirname, "websites");
-const BOTS_DIR = path.join(__dirname, "bots"); // ← NEW: Store bot files here
+const BOTS_DIR = path.join(__dirname, "bots");
 
 async function ensureDirs() {
   try {
@@ -46,7 +46,7 @@ async function ensureDirs() {
 ensureDirs();
 
 const SECURITY = {
-  BOT_TIMEOUT_MS: 3600000, // 1 hour
+  BOT_TIMEOUT_MS: 3600000,
   MAX_CODE_SIZE: 50000,
   MAX_BOT_COUNT: 10,
   MAX_FILE_SIZE: 5 * 1024 * 1024,
@@ -82,7 +82,7 @@ function checkCodeSafety(code) {
 }
 
 // =====================================================
-// BOT PROCESS MANAGER (NEW - NO VM2!)
+// BOT PROCESS MANAGER (DEBUG VERSION)
 // =====================================================
 class BotProcess {
   constructor(userId, code, token) {
@@ -98,17 +98,22 @@ class BotProcess {
 
   async start() {
     try {
-      // Create the bot file
+      // Add diagnostic logging to the bot code
       const fullCode = `
-// Discord token from environment
-const token = process.env.DISCORD_TOKEN;
+// ========== BotForge Debug Info ==========
+console.log('🔧 [DEBUG] Bot process started');
+console.log('🔧 [DEBUG] Node.js version:', process.version);
+console.log('🔧 [DEBUG] Token length:', process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 'NO TOKEN!');
+console.log('🔧 [DEBUG] Time:', new Date().toISOString());
+console.log('🔧 [DEBUG] Loading discord.js...');
 
 ${this.code}
+
+console.log('🔧 [DEBUG] Bot code loaded, attempting login...');
 `;
-      
+
       await fs.writeFile(this.botFile, fullCode);
 
-      // Spawn a new Node.js process to run the bot
       this.process = spawn('node', [this.botFile], {
         env: {
           ...process.env,
@@ -117,38 +122,37 @@ ${this.code}
         stdio: ['ignore', 'pipe', 'pipe']
       });
 
-      this.addLog('SYSTEM', '✅ Bot process started');
+      this.addLog('SYSTEM', '✅ Bot process spawned (PID: ' + this.process.pid + ')');
 
-      // Capture stdout
       this.process.stdout.on('data', (data) => {
         const output = data.toString().trim();
         if (output) {
-          // Try to extract bot tag from "logged in" messages
-          const tagMatch = output.match(/logged in as (.+?)!/);
+          this.addLog('LOG', output);
+          // Detect bot tag from common messages
+          const tagMatch = output.match(/logged in as (.+?)!/i) || 
+                          output.match(/Bot is online as (.+)/i) ||
+                          output.match(/Ready! Logged in as (.+)/i);
           if (tagMatch && !this.botTag) {
             this.botTag = tagMatch[1];
+            this.addLog('SYSTEM', '🎯 Bot tag detected: ' + this.botTag);
           }
-          this.addLog('LOG', output);
         }
       });
 
-      // Capture stderr
       this.process.stderr.on('data', (data) => {
         const output = data.toString().trim();
         if (output) this.addLog('ERROR', output);
       });
 
-      // Handle process exit
       this.process.on('exit', (code, signal) => {
-        this.addLog('SYSTEM', `🛑 Bot process exited (code: ${code}, signal: ${signal})`);
+        this.addLog('SYSTEM', `🛑 Process exited (code: ${code}, signal: ${signal || 'none'})`);
         runningBots.delete(this.userId);
         this.cleanup();
       });
 
-      // Wait a bit and try to detect bot tag
-      setTimeout(() => {
-        if (!this.botTag) this.botTag = 'Bot #' + this.userId.slice(-6);
-      }, 3000);
+      this.process.on('error', (err) => {
+        this.addLog('ERROR', '❌ Process spawn error: ' + err.message);
+      });
 
       return { success: true };
     } catch (error) {
@@ -166,17 +170,13 @@ ${this.code}
   async stop() {
     if (this.process && !this.process.killed) {
       try {
-        // Kill the process
         this.process.kill('SIGTERM');
-        
-        // Force kill after 5 seconds if still running
         setTimeout(() => {
           if (this.process && !this.process.killed) {
             this.process.kill('SIGKILL');
           }
         }, 5000);
-        
-        this.addLog('SYSTEM', '⏹️ Bot stop requested');
+        this.addLog('SYSTEM', '⏹️ Stop requested');
       } catch (err) {
         console.error('Error stopping bot:', err.message);
       }
@@ -186,11 +186,8 @@ ${this.code}
 
   async cleanup() {
     try {
-      // Delete the bot file
       await fs.unlink(this.botFile).catch(() => {});
-    } catch (err) {
-      // Ignore cleanup errors
-    }
+    } catch (err) {}
   }
 
   getLogs() { return this.logs.slice(-50); }
@@ -206,7 +203,7 @@ app.get("/", (req, res) => {
   res.json({
     message: "🤖 BotForge Backend is running!",
     status: "online",
-    version: "10.0.0 - Process-Based!",
+    version: "10.0.1 - Debug Edition",
     features: {
       discordBots: "✅ Active",
       websiteHosting: "✅ Active",
@@ -285,7 +282,6 @@ app.post("/api/bot/start", async (req, res) => {
   }
 
   try {
-    // Validate token first
     const tempClient = new Client({ intents: [GatewayIntentBits.Guilds] });
     await tempClient.login(token);
     const botTag = tempClient.user.tag;
@@ -295,7 +291,7 @@ app.post("/api/bot/start", async (req, res) => {
     console.log(`🚀 Starting bot process: ${botTag}`);
 
     const bot = new BotProcess(userId, code, token);
-    bot.botTag = botTag; // Set immediately for UI
+    bot.botTag = botTag;
     await bot.start();
 
     const timeoutId = setTimeout(() => {
@@ -311,7 +307,7 @@ app.post("/api/bot/start", async (req, res) => {
 
     res.json({
       success: true,
-      message: `✅ Bot ${botTag} is running! Auto-kill in 1 hour.`,
+      message: `✅ Bot ${botTag} started! Check logs for connection status.`,
       botTag, botId, userId,
       security: { autoKillIn: "60 minutes", codeScanned: true }
     });
@@ -358,7 +354,7 @@ app.get("/api/bots", (req, res) => {
 });
 
 // =====================================================
-// WEBSITE HOSTING ENDPOINTS (unchanged)
+// WEBSITE HOSTING ENDPOINTS
 // =====================================================
 
 const websiteStorage = multer.diskStorage({
@@ -463,8 +459,8 @@ process.on('SIGTERM', async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ BotForge v10.0 running on port ${PORT}`);
-  console.log(`🚀 Process-based bot execution (NO VM2!)`);
+  console.log(`✅ BotForge v10.0.1 running on port ${PORT}`);
+  console.log(`🚀 Process-based bot execution (DEBUG MODE)`);
   console.log(`🤖 Discord bot hosting: ACTIVE (1hr timeout)`);
   console.log(`🌐 Website hosting: ACTIVE`);
   console.log(`🚫 Dangerous code patterns: BLOCKED`);
