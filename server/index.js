@@ -1,5 +1,5 @@
 // =====================================================
-// BotForge Backend - Version 9.0.1 (Bug Fixes)
+// BotForge Backend - Version 9.0.2 (Sandbox Fix)
 // Discord Bot Hosting + Website Hosting
 // =====================================================
 
@@ -87,7 +87,7 @@ function checkCodeSafety(code) {
 }
 
 // =====================================================
-// SANDBOXED BOT RUNNER (FIXED)
+// SANDBOXED BOT RUNNER (FIXED v9.0.2)
 // =====================================================
 class SandboxedBot {
   constructor(userId, code, token) {
@@ -102,7 +102,7 @@ class SandboxedBot {
 
   async start() {
     try {
-      // Load discord.js OUTSIDE the sandbox so we can pass it in
+      // Load discord.js OUTSIDE the sandbox
       const discordModule = await import('discord.js');
 
       this.vm = new NodeVM({
@@ -117,12 +117,11 @@ class SandboxedBot {
             warn: (...args) => this.addLog('WARN', args.join(' ')),
             info: (...args) => this.addLog('INFO', args.join(' '))
           },
-          // Pass discord.js directly into the sandbox!
           discord: discordModule
         },
         require: {
           external: false,
-          builtin: [],
+          builtin: ['module'],  // ← FIXED: Allow module built-in
           root: path.join(__dirname, "node_modules"),
           mock: {}
         },
@@ -130,21 +129,13 @@ class SandboxedBot {
         memoryLimit: SECURITY.MAX_MEMORY_MB
       });
 
-      // Wrap the code to intercept require calls
+      // Simple wrapper - no need to override require
       const wrappedCode = `
-        // Override require to ONLY allow discord.js
-        const _Module = { exports: {} };
-        const _discord = discord;
-        
-        // Intercept require
-        const require = function(id) {
-          if (id === 'discord.js' || id === 'discord') {
-            return _discord;
-          }
+        // Pass discord.js as the require result
+        const require = (id) => {
+          if (id === 'discord.js') return discord;
           throw new Error('Module not allowed: ' + id + '. Only discord.js is permitted.');
         };
-        
-        // Make module.exports work normally
         const module = { exports: {} };
         const exports = module.exports;
         
@@ -185,7 +176,7 @@ app.get("/", (req, res) => {
   res.json({
     message: "🤖 BotForge Backend is running!",
     status: "online",
-    version: "9.0.1 - Bug Fixes!",
+    version: "9.0.2 - Sandbox Fixed!",
     features: {
       discordBots: "✅ Active",
       websiteHosting: "✅ Active",
@@ -437,7 +428,7 @@ process.on('SIGTERM', async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ BotForge v9.0.1 running on port ${PORT}`);
+  console.log(`✅ BotForge v9.0.2 running on port ${PORT}`);
   console.log(`🛡️ vm2 Sandboxing: ENABLED (FIXED)`);
   console.log(`🤖 Discord bot hosting: ACTIVE (1hr timeout)`);
   console.log(`🌐 Website hosting: ACTIVE`);
