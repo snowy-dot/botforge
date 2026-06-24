@@ -1,16 +1,16 @@
 // =====================================================
-// BotForge Backend - Version 9.0.2 (Sandbox Fix)
+// BotForge Backend - Version 10.0 (Process-Based)
 // Discord Bot Hosting + Website Hosting
 // =====================================================
 
 import express from "express";
 import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
-import { NodeVM } from "vm2";
 import multer from "multer";
 import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
+import { spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
@@ -32,11 +32,13 @@ app.use((req, res, next) => {
 
 const DATA_DIR = path.join(__dirname, "data");
 const WEBSITES_DIR = path.join(__dirname, "websites");
+const BOTS_DIR = path.join(__dirname, "bots"); // ← NEW: Store bot files here
 
 async function ensureDirs() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.mkdir(WEBSITES_DIR, { recursive: true });
+    await fs.mkdir(BOTS_DIR, { recursive: true });
   } catch (err) {
     console.error("Error creating directories:", err);
   }
@@ -44,9 +46,7 @@ async function ensureDirs() {
 ensureDirs();
 
 const SECURITY = {
-  MAX_MEMORY_MB: 128,
-  MAX_CPU_TIME_MS: 5000,
-  BOT_TIMEOUT_MS: 3600000,
+  BOT_TIMEOUT_MS: 3600000, // 1 hour
   MAX_CODE_SIZE: 50000,
   MAX_BOT_COUNT: 10,
   MAX_FILE_SIZE: 5 * 1024 * 1024,
@@ -63,16 +63,11 @@ function getUserId(req) {
 const DANGEROUS_PATTERNS = [
   { pattern: /require\s*\(\s*['"]child_process['"]\s*\)/i, name: "child_process" },
   { pattern: /require\s*\(\s*['"]fs['"]\s*\)/i, name: "fs module" },
-  { pattern: /require\s*\(\s*['"]fs\//i, name: "fs submodule" },
   { pattern: /process\.exit/i, name: "process.exit" },
   { pattern: /process\.kill/i, name: "process.kill" },
   { pattern: /eval\s*\(/i, name: "eval()" },
   { pattern: /Function\s*\(/i, name: "Function constructor" },
   { pattern: /\bnew\s+Function\s*\(/i, name: "new Function" },
-  { pattern: /require\s*\(\s*['"]http['"]\s*\)/i, name: "http module" },
-  { pattern: /require\s*\(\s*['"]https['"]\s*\)/i, name: "https module" },
-  { pattern: /require\s*\(\s*['"]net['"]\s*\)/i, name: "net module" },
-  { pattern: /require\s*\(\s*['"]dgram['"]\s*\)/i, name: "dgram module" },
   { pattern: /\bwhile\s*\(\s*true\s*\)/i, name: "infinite while loop" },
   { pattern: /\bfor\s*\(\s*;;\s*\)/i, name: "infinite for loop" }
 ];
@@ -87,66 +82,77 @@ function checkCodeSafety(code) {
 }
 
 // =====================================================
-// SANDBOXED BOT RUNNER (FIXED v9.0.2)
+// BOT PROCESS MANAGER (NEW - NO VM2!)
 // =====================================================
-class SandboxedBot {
+class BotProcess {
   constructor(userId, code, token) {
     this.userId = userId;
     this.code = code;
     this.token = token;
-    this.vm = null;
+    this.process = null;
     this.logs = [];
     this.startTime = Date.now();
     this.botTag = null;
+    this.botFile = path.join(BOTS_DIR, `${userId}-${Date.now()}.js`);
   }
 
   async start() {
     try {
-      // Load discord.js OUTSIDE the sandbox
-      const discordModule = await import('discord.js');
+      // Create the bot file
+      const fullCode = `
+// Discord token from environment
+const token = process.env.DISCORD_TOKEN;
 
-      this.vm = new NodeVM({
-        console: 'redirect',
-        sandbox: {
-          process: {
-            env: { DISCORD_TOKEN: this.token }
-          },
-          console: {
-            log: (...args) => this.addLog('LOG', args.join(' ')),
-            error: (...args) => this.addLog('ERROR', args.join(' ')),
-            warn: (...args) => this.addLog('WARN', args.join(' ')),
-            info: (...args) => this.addLog('INFO', args.join(' '))
-          },
-          discord: discordModule
+${this.code}
+`;
+      
+      await fs.writeFile(this.botFile, fullCode);
+
+      // Spawn a new Node.js process to run the bot
+      this.process = spawn('node', [this.botFile], {
+        env: {
+          ...process.env,
+          DISCORD_TOKEN: this.token
         },
-        require: {
-          external: false,
-          builtin: ['module'],  // ← FIXED: Allow module built-in
-          root: path.join(__dirname, "node_modules"),
-          mock: {}
-        },
-        timeout: SECURITY.MAX_CPU_TIME_MS,
-        memoryLimit: SECURITY.MAX_MEMORY_MB
+        stdio: ['ignore', 'pipe', 'pipe']
       });
 
-      // Simple wrapper - no need to override require
-      const wrappedCode = `
-        // Pass discord.js as the require result
-        const require = (id) => {
-          if (id === 'discord.js') return discord;
-          throw new Error('Module not allowed: ' + id + '. Only discord.js is permitted.');
-        };
-        const module = { exports: {} };
-        const exports = module.exports;
-        
-        ${this.code}
-      `;
+      this.addLog('SYSTEM', '✅ Bot process started');
 
-      this.vm.run(wrappedCode, 'bot.js');
-      this.addLog('SYSTEM', '✅ Bot started successfully in sandbox');
+      // Capture stdout
+      this.process.stdout.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output) {
+          // Try to extract bot tag from "logged in" messages
+          const tagMatch = output.match(/logged in as (.+?)!/);
+          if (tagMatch && !this.botTag) {
+            this.botTag = tagMatch[1];
+          }
+          this.addLog('LOG', output);
+        }
+      });
+
+      // Capture stderr
+      this.process.stderr.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output) this.addLog('ERROR', output);
+      });
+
+      // Handle process exit
+      this.process.on('exit', (code, signal) => {
+        this.addLog('SYSTEM', `🛑 Bot process exited (code: ${code}, signal: ${signal})`);
+        runningBots.delete(this.userId);
+        this.cleanup();
+      });
+
+      // Wait a bit and try to detect bot tag
+      setTimeout(() => {
+        if (!this.botTag) this.botTag = 'Bot #' + this.userId.slice(-6);
+      }, 3000);
+
       return { success: true };
     } catch (error) {
-      this.addLog('ERROR', `❌ Sandbox error: ${error.message}`);
+      this.addLog('ERROR', `❌ Failed to start: ${error.message}`);
       throw error;
     }
   }
@@ -158,31 +164,53 @@ class SandboxedBot {
   }
 
   async stop() {
-    if (this.vm) {
+    if (this.process && !this.process.killed) {
       try {
-        this.vm = null;
-        this.addLog('SYSTEM', '🛑 Bot stopped');
+        // Kill the process
+        this.process.kill('SIGTERM');
+        
+        // Force kill after 5 seconds if still running
+        setTimeout(() => {
+          if (this.process && !this.process.killed) {
+            this.process.kill('SIGKILL');
+          }
+        }, 5000);
+        
+        this.addLog('SYSTEM', '⏹️ Bot stop requested');
       } catch (err) {
-        console.error('Error stopping VM:', err.message);
+        console.error('Error stopping bot:', err.message);
       }
+    }
+    await this.cleanup();
+  }
+
+  async cleanup() {
+    try {
+      // Delete the bot file
+      await fs.unlink(this.botFile).catch(() => {});
+    } catch (err) {
+      // Ignore cleanup errors
     }
   }
 
   getLogs() { return this.logs.slice(-50); }
   getUptime() { return Date.now() - this.startTime; }
+  isRunning() { return this.process && !this.process.killed; }
 }
+
+// =====================================================
+// BASIC ENDPOINTS
+// =====================================================
 
 app.get("/", (req, res) => {
   res.json({
     message: "🤖 BotForge Backend is running!",
     status: "online",
-    version: "9.0.2 - Sandbox Fixed!",
+    version: "10.0.0 - Process-Based!",
     features: {
       discordBots: "✅ Active",
       websiteHosting: "✅ Active",
-      sandboxing: "✅ Enabled",
-      autoKill: "✅ 1 hour timeout",
-      deploymentTracking: "✅ Active"
+      autoKill: "✅ 1 hour timeout"
     },
     activeBots: runningBots.size,
     maxBots: SECURITY.MAX_BOT_COUNT
@@ -201,6 +229,10 @@ app.get("/health", (req, res) => {
 app.get("/ping", (req, res) => {
   res.json({ pong: true, timestamp: Date.now() });
 });
+
+// =====================================================
+// DISCORD BOT ENDPOINTS
+// =====================================================
 
 app.post("/api/validate-token", async (req, res) => {
   const { token } = req.body;
@@ -238,13 +270,13 @@ app.post("/api/bot/start", async (req, res) => {
     return res.json({ success: false, message: "❌ Missing code or token!" });
   }
   if (code.length > SECURITY.MAX_CODE_SIZE) {
-    return res.json({ success: false, message: `❌ Code too large! Max ${SECURITY.MAX_CODE_SIZE / 1000}KB` });
+    return res.json({ success: false, message: `❌ Code too large!` });
   }
   if (runningBots.size >= SECURITY.MAX_BOT_COUNT) {
-    return res.json({ success: false, message: `❌ Server at max capacity! (${SECURITY.MAX_BOT_COUNT} bots running)` });
+    return res.json({ success: false, message: `❌ Server at max capacity!` });
   }
   if (runningBots.has(userId)) {
-    return res.json({ success: false, message: "❌ You already have a bot running! Stop it first." });
+    return res.json({ success: false, message: "❌ You already have a bot running!" });
   }
 
   const violations = checkCodeSafety(code);
@@ -253,23 +285,21 @@ app.post("/api/bot/start", async (req, res) => {
   }
 
   try {
+    // Validate token first
     const tempClient = new Client({ intents: [GatewayIntentBits.Guilds] });
     await tempClient.login(token);
     const botTag = tempClient.user.tag;
     const botId = tempClient.user.id;
     await tempClient.destroy();
 
-    console.log(`🔒 Starting sandboxed bot: ${botTag}`);
+    console.log(`🚀 Starting bot process: ${botTag}`);
 
-    const bot = new SandboxedBot(userId, code, token);
-    try {
-      await bot.start();
-    } catch (sandboxError) {
-      return res.json({ success: false, message: `❌ Sandbox error: ${sandboxError.message}` });
-    }
+    const bot = new BotProcess(userId, code, token);
+    bot.botTag = botTag; // Set immediately for UI
+    await bot.start();
 
     const timeoutId = setTimeout(() => {
-      console.log(`⏱️ Auto-killing bot ${botTag} after 1 hour timeout`);
+      console.log(`⏱️ Auto-killing bot ${botTag} after 1 hour`);
       bot.stop();
       runningBots.delete(userId);
       deploymentLog.push({ type: 'bot', action: 'auto-killed', userId, botTag, timestamp: new Date().toISOString() });
@@ -283,7 +313,7 @@ app.post("/api/bot/start", async (req, res) => {
       success: true,
       message: `✅ Bot ${botTag} is running! Auto-kill in 1 hour.`,
       botTag, botId, userId,
-      security: { memoryLimit: SECURITY.MAX_MEMORY_MB + "MB", autoKillIn: "60 minutes", codeScanned: true }
+      security: { autoKillIn: "60 minutes", codeScanned: true }
     });
   } catch (error) {
     console.error('Bot start error:', error);
@@ -310,17 +340,26 @@ app.post("/api/bot/stop", (req, res) => {
 app.get("/api/bot/logs/:userId", (req, res) => {
   const botData = runningBots.get(req.params.userId);
   if (!botData) return res.json({ running: false, logs: [] });
-  res.json({ running: true, botTag: botData.botTag, uptime: Date.now() - botData.startTime, logs: botData.bot.getLogs() });
+  res.json({
+    running: botData.bot.isRunning(),
+    botTag: botData.botTag,
+    uptime: Date.now() - botData.startTime,
+    logs: botData.bot.getLogs()
+  });
 });
 
 app.get("/api/bots", (req, res) => {
   const bots = Array.from(runningBots.entries()).map(([userId, data]) => ({
     userId, botTag: data.botTag, botId: data.botId,
     uptime: Math.floor((Date.now() - data.startTime) / 1000) + "s",
-    sandboxed: true
+    running: data.bot.isRunning()
   }));
   res.json({ totalBots: bots.length, maxBots: SECURITY.MAX_BOT_COUNT, bots });
 });
+
+// =====================================================
+// WEBSITE HOSTING ENDPOINTS (unchanged)
+// =====================================================
 
 const websiteStorage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -344,15 +383,12 @@ app.post("/api/website/upload", websiteUpload.array("files"), async (req, res) =
     if (!files || files.length === 0) return res.json({ success: false, message: "❌ No files uploaded!" });
 
     console.log(`📁 User ${userId} uploaded ${files.length} file(s)`);
-    deploymentLog.push({ type: 'website', action: 'uploaded', userId, fileCount: files.length, files: files.map(f => f.originalname), timestamp: new Date().toISOString() });
-
     res.json({
       success: true, message: `✅ Uploaded ${files.length} file(s)!`,
       userId, previewUrl: `/preview/${userId}/`,
       files: files.map(f => f.originalname)
     });
   } catch (error) {
-    console.error("Upload error:", error);
     res.json({ success: false, message: `❌ Error: ${error.message}` });
   }
 });
@@ -375,7 +411,6 @@ app.delete("/api/website/:userId", async (req, res) => {
     const userFolder = path.join(WEBSITES_DIR, userId);
     if (!fsSync.existsSync(userFolder)) return res.json({ success: false, message: "❌ Website not found!" });
     await fs.rm(userFolder, { recursive: true, force: true });
-    deploymentLog.push({ type: 'website', action: 'deleted', userId, timestamp: new Date().toISOString() });
     res.json({ success: true, message: "✅ Website deleted!" });
   } catch (error) {
     res.json({ success: false, message: `❌ Error: ${error.message}` });
@@ -390,7 +425,7 @@ app.get("/preview/:userId", async (req, res) => {
     if (fsSync.existsSync(indexFile)) {
       res.sendFile(indexFile);
     } else {
-      res.status(404).send(`<html><body style="background:#0e0e10;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>❌ No Website Found</h1><p>Upload an index.html file first!</p><a href="/" style="color:#5865F2;">← Back to BotForge</a></body></html>`);
+      res.status(404).send(`<html><body style="background:#0e0e10;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>❌ No Website Found</h1><p>Upload an index.html file first!</p></body></html>`);
     }
   } catch (error) {
     res.status(500).send("❌ Error: " + error.message);
@@ -414,9 +449,9 @@ app.get("/preview/:userId/:filename", async (req, res) => {
   }
 });
 
-app.get("/api/deployments", (req, res) => {
-  res.json({ total: deploymentLog.length, recent: deploymentLog.slice(-50).reverse() });
-});
+// =====================================================
+// CLEANUP & SHUTDOWN
+// =====================================================
 
 process.on('SIGTERM', async () => {
   console.log('🛑 Shutting down - cleaning up...');
@@ -428,12 +463,9 @@ process.on('SIGTERM', async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ BotForge v9.0.2 running on port ${PORT}`);
-  console.log(`🛡️ vm2 Sandboxing: ENABLED (FIXED)`);
+  console.log(`✅ BotForge v10.0 running on port ${PORT}`);
+  console.log(`🚀 Process-based bot execution (NO VM2!)`);
   console.log(`🤖 Discord bot hosting: ACTIVE (1hr timeout)`);
   console.log(`🌐 Website hosting: ACTIVE`);
-  console.log(`🔒 Memory limit: ${SECURITY.MAX_MEMORY_MB}MB per bot`);
-  console.log(`⏱️ Auto-kill: ${SECURITY.BOT_TIMEOUT_MS / 60000} minutes`);
   console.log(`🚫 Dangerous code patterns: BLOCKED`);
-  console.log(`📊 Deployment tracking: ENABLED`);
 });
